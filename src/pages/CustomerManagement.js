@@ -9,10 +9,16 @@ import {
   Paper,
   Tooltip,
   Alert,
+  FormControlLabel,
   Checkbox,
 } from '@mui/material';
 import { DataGrid, zhTW } from '@mui/x-data-grid';
-import { Add as AddIcon, Edit as EditIcon, LocationOn as LocationIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  LocationOn as LocationIcon,
+  Info as InfoIcon,
+} from '@mui/icons-material';
 import CustomerDialog from '../components/CustomerDialog';
 import LocationDialog from '../components/LocationDialog';
 import api from '../utils/api';

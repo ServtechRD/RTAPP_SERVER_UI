@@ -149,8 +149,8 @@ const MainLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          p: 1, // 改為更小的 padding
+          width: '100%',
           ml: { sm: `${drawerOpen ? drawerWidth : (theme) => theme.spacing(7)}px` },
           transition: (theme) =>
             theme.transitions.create('margin', {
@@ -162,10 +162,10 @@ const MainLayout = ({ children }) => {
         <Toolbar /> {/* 為 AppBar 預留空間 */}
         <Box
           sx={{
-            p: 3,
-            flexGrow: 1,
+            backgroundColor: 'background.default',
+            borderRadius: 1,
+            overflow: 'hidden',
             maxWidth: '100%',
-            overflow: 'auto',
           }}
         >
           {children}

@@ -29,7 +29,7 @@ const ModelManagement = () => {
 
       // 獲取所有使用者的版本映射 - 修改為 for...of 循環
       const mappingResponses = [];
-      for (const user in mobileUsersList) {
+      for (const user of mobileUsersList) {
         try {
           const response = await api.get(`/versions/mapping/${user.username}`);
           mappingResponses.push(response);
@@ -39,7 +39,7 @@ const ModelManagement = () => {
       }
 
       const allMappings = [];
-      for (const response in mappingResponses) {
+      for (const response of mappingResponses) {
         if (response.data) {
           allMappings.push(...response.data);
         }
@@ -47,7 +47,7 @@ const ModelManagement = () => {
 
       // 處理版本數據
       const versionData = [];
-      for (const version in versionsResponse.data) {
+      for (const version of versionsResponse.data) {
         // 找到此版本相關的所有映射
         const versionMappings = allMappings.filter(
           (mapping) => mapping.version_name === version.version_name
@@ -55,7 +55,7 @@ const ModelManagement = () => {
 
         // 找出哪些行動使用者被分配到此版本
         const assignedMobileUsers = [];
-        for (const mapping in versionMappings) {
+        for (const mapping of versionMappings) {
           const user = mobileUsersList.find((user) => user.username === mapping.user_name);
           if (user) {
             assignedMobileUsers.push(user);

@@ -82,7 +82,7 @@ const ReportQuery = () => {
     try {
       const response = await api.get('/locations/');
       const activeLocations = response.data;
-      setLocations(activeCustomers);
+      setLocations(activeLocations);
     } catch (error) {
       console.error('獲取地點資料失敗:', error);
       setError('獲取地點資料失敗');
@@ -110,8 +110,8 @@ const ReportQuery = () => {
 
       let results = response.data;
 
-      setQueryResults(resulta);
-      calculateStats(result);
+      setQueryResults(results);
+      calculateStats(results);
     } catch (error) {
       console.error('查詢失敗:', error);
       setError(error.response?.data?.detail || '查詢資料時發生錯誤');

@@ -74,6 +74,8 @@ const ModelManagement = () => {
           });
         }
       }
+
+      setVersions(versionData);
     } catch (err) {
       setError('獲取資料失敗: ' + (err.response?.data?.detail || err.message));
     } finally {

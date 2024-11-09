@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
+const miniDrawerWidth = 65; // 收起時的寬度
 
 const MainLayout = ({ children }) => {
   const [drawerOpen, setDrawerOpen] = useState(true);

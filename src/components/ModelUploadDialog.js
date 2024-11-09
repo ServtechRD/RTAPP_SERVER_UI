@@ -151,7 +151,7 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
             onChange={(event, newValue) => {
               setSelectedUsers(newValue);
             }}
-            options={mobileOnlyUsers}
+            options={mobileUsers}
             getOptionLabel={(option) => `${option.username} (${option.name})`}
             renderInput={(params) => (
               <TextField {...params} label="選擇行動使用者" margin="normal" required />

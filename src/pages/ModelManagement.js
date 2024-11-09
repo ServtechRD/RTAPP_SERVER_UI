@@ -21,7 +21,7 @@ const ModelManagement = () => {
 
       // 獲取行動使用者
       const mobileUsersResponse = await api.get('/users/mobile/');
-      const mobileUsersList = mobileUsersResponse.data;
+      const mobileUsersList = mobileUsersResponse.data.users;
       setMobileUsers(mobileUsersList);
 
       // 獲取所有版本

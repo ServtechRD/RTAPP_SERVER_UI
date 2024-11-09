@@ -60,7 +60,8 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
       formData.append('showModel', showModel);
       formData.append('showScore', showScore);
       formData.append('threshold', threshold);
-      formData.append('usernameList', selectedUsers.join('|'));
+      // 將選中的使用者的 username 組合成字串
+      formData.append('usernameList', selectedUsers.map((user) => user.username).join('|'));
 
       const response = await api.post('/upload_version/', formData);
 
@@ -150,19 +151,23 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
             onChange={(event, newValue) => {
               setSelectedUsers(newValue);
             }}
-            options={mobileUsers.map((user) => user.username)}
+            options={mobileUsers} // 直接傳入整個物件陣列
+            getOptionLabel={(option) => option.username} // 指定要顯示的屬性
             renderInput={(params) => (
               <TextField {...params} label="選擇行動使用者" margin="normal" required />
             )}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Chip
-                  label={option}
+                  label={option.username} // 使用物件的 username 屬性
                   {...getTagProps({ index })}
                   color="primary"
                   variant="outlined"
                 />
               ))
+            }
+            isOptionEqualToValue={
+              (option, value) => option.username === value.username // 比較物件的 username 屬性
             }
           />
         </DialogContent>

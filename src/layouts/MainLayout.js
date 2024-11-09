@@ -149,11 +149,14 @@ const MainLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          height: '100vh',
-          overflow: 'auto',
-          backgroundColor: (theme) => theme.palette.background.default,
-          display: 'flex',
-          flexDirection: 'column',
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerOpen ? drawerWidth : (theme) => theme.spacing(7)}px` },
+          transition: (theme) =>
+            theme.transitions.create('margin', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
         }}
       >
         <Toolbar /> {/* 為 AppBar 預留空間 */}

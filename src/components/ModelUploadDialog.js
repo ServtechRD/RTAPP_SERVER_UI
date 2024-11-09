@@ -48,6 +48,7 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
     setLoading(true);
 
     if (!file || !versionName || selectedUsers.length === 0) {
+      console.log(selectedUsers);
       setError('請填寫所有必要欄位');
       setLoading(false);
       return;

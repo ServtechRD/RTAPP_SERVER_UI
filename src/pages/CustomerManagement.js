@@ -15,7 +15,6 @@ const CustomerManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 獲取客戶列表
   const fetchCustomers = async () => {
     try {
       setLoading(true);
@@ -23,6 +22,7 @@ const CustomerManagement = () => {
       const customersData = response.data.map((customer) => ({
         ...customer,
         locationCount: customer.locations?.length || 0,
+        enabled: customer.enabled ?? true, // 確保有 enabled 欄位
       }));
       setCustomers(customersData);
       setError('');
@@ -60,14 +60,14 @@ const CustomerManagement = () => {
       headerAlign: 'center',
     },
     {
-      field: 'status',
-      headerName: '狀態',
+      field: 'enabled',
+      headerName: '啟用狀態',
       width: 120,
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => (
         <Switch
-          checked={params.row.status !== 'inactive'}
+          checked={params.row.enabled}
           onChange={(e) => handleStatusChange(params.row.id, e.target.checked)}
           color="primary"
         />
@@ -116,21 +116,25 @@ const CustomerManagement = () => {
     setOpenLocationDialog(true);
   };
 
-  const handleStatusChange = async (customerId, newStatus) => {
+  const handleStatusChange = async (clientId, enabled) => {
     try {
-      await api.put(`/clients/${customerId}/status`, {
-        status: newStatus ? 'active' : 'inactive',
+      await api.put(`/clients/${clientId}`, {
+        enabled: enabled,
       });
 
       setCustomers(
         customers.map((customer) =>
-          customer.id === customerId
-            ? { ...customer, status: newStatus ? 'active' : 'inactive' }
-            : customer
+          customer.id === clientId ? { ...customer, enabled: enabled } : customer
         )
       );
     } catch (err) {
       setError('更新狀態失敗: ' + (err.response?.data?.detail || err.message));
+      // 恢復原始狀態
+      setCustomers((prevCustomers) =>
+        prevCustomers.map((customer) =>
+          customer.id === clientId ? { ...customer, enabled: !enabled } : customer
+        )
+      );
     }
   };
 
@@ -146,7 +150,7 @@ const CustomerManagement = () => {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
         </Alert>
       )}
@@ -156,7 +160,6 @@ const CustomerManagement = () => {
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10, 25, 50]}
-        checkboxSelection
         disableSelectionOnClick
         loading={loading}
         autoHeight

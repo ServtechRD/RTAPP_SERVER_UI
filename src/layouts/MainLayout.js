@@ -60,20 +60,6 @@ const MainLayout = ({ children }) => {
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: (theme) => theme.palette.primary.main,
-          transition: (theme) =>
-            theme.transitions.create(['width', 'margin'], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
-            }),
-          ...(drawerOpen && {
-            marginLeft: drawerWidth,
-            width: `calc(100% - ${drawerWidth}px)`,
-            transition: (theme) =>
-              theme.transitions.create(['width', 'margin'], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-          }),
         }}
       >
         <Toolbar>
@@ -96,8 +82,23 @@ const MainLayout = ({ children }) => {
             boxSizing: 'border-box',
             borderRight: '1px solid rgba(0, 0, 0, 0.12)',
             backgroundColor: (theme) => theme.palette.background.paper,
+            transition: (theme) =>
+              theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            ...(!drawerOpen && {
+              width: (theme) => theme.spacing(7),
+              overflowX: 'hidden',
+              transition: (theme) =>
+                theme.transitions.create('width', {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.leavingScreen,
+                }),
+            }),
           },
         }}
+        open={drawerOpen}
       >
         <Toolbar /> {/* 為 AppBar 預留空間 */}
         <Box
@@ -112,31 +113,23 @@ const MainLayout = ({ children }) => {
               <ListItem
                 button
                 key={item.text}
-                selected={location.pathname === item.path}
                 onClick={() => history.push(item.path)}
                 sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: (theme) => theme.palette.action.selected,
-                    '&:hover': {
-                      backgroundColor: (theme) => theme.palette.action.hover,
-                    },
-                  },
+                  minHeight: 48,
+                  justifyContent: drawerOpen ? 'initial' : 'center',
+                  px: 2.5,
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    minWidth: 40,
-                    color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                    minWidth: 0,
+                    mr: drawerOpen ? 3 : 'auto',
+                    justifyContent: 'center',
                   }}
                 >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  sx={{
-                    color: location.pathname === item.path ? 'primary.main' : 'inherit',
-                  }}
-                />
+                {drawerOpen && <ListItemText primary={item.text} sx={{ opacity: 1 }} />}
               </ListItem>
             ))}
           </List>

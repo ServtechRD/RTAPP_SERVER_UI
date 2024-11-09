@@ -159,7 +159,7 @@ const ReportQuery = () => {
     {
       field: 'saveTime',
       headerName: '時間',
-      width: 180,
+      width: 160,
       valueFormatter: (params) => new Date(params.value).toLocaleString('zh-TW'),
     },
     {
@@ -189,12 +189,25 @@ const ReportQuery = () => {
     {
       field: 'taskId',
       headerName: '作業內容',
-      width: 130,
+      width: 100,
       valueGetter: (params) => {
         const taskName =
-          params.value == 0 ? '現場作業<br/>(勾掛安全帶)' : '現場作業<br/>(不需要勾掛安全帶)';
+          params.value == 0 ? '現場作業 (勾掛安全帶)' : '現場作業 (不需要勾掛安全帶)';
         return taskName;
       },
+      renderCell: (params) => (
+        <div
+          style={{
+            whiteSpace: 'normal', // 允許換行
+            wordWrap: 'break-word', // 長單字換行
+            lineHeight: '1.2', // 行高
+            padding: '8px 0', // 上下padding
+            width: '100%', // 使用全寬
+          }}
+        >
+          {params.value}
+        </div>
+      ),
     },
     {
       field: 'detectLabels',

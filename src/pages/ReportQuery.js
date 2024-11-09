@@ -177,6 +177,7 @@ const ReportQuery = () => {
       width: 130,
       valueGetter: (params) => {
         const location = locations.find((c) => c.id === params.value);
+        console.log(params);
         return location ? location.address : params.value;
       },
     },
@@ -192,7 +193,7 @@ const ReportQuery = () => {
     {
       field: 'detectLabels',
       headerName: '辨識物件',
-      width: 200,
+      width: 130,
       valueGetter: (params) => {
         // 如果沒有標籤資料，返回空字串
         if (!params.value) return '';
@@ -362,7 +363,7 @@ const ReportQuery = () => {
         )}
 
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
@@ -372,23 +373,13 @@ const ReportQuery = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
                   客戶總數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  平均標籤數
-                </Typography>
-                <Typography variant="h4">{stats.averageLabelsPerPhoto}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -403,7 +394,20 @@ const ReportQuery = () => {
           disableSelectionOnClick
           loading={loading}
           autoHeight
-          sx={{ backgroundColor: 'white' }}
+          sx={{
+            backgroundColor: 'white',
+            '& .MuiDataGrid-cell': {
+              whiteSpace: 'normal', // 允許換行
+              padding: '8px', // 增加內距
+              '&:focus': {
+                outline: 'none',
+              },
+            },
+            '& .MuiDataGrid-row': {
+              minHeight: '60px !important', // 最小行高
+              // 確保即使內容很少時也有合適的高度
+            },
+          }}
           localeText={zhTW.components.MuiDataGrid.defaultProps.localeText}
         />
 

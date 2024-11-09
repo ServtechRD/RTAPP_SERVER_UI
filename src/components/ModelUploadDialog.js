@@ -155,7 +155,14 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
             options={mobileUsers}
             getOptionLabel={(option) => `${option.username} (${option.name})`}
             renderInput={(params) => (
-              <TextField {...params} label="選擇行動使用者" margin="normal" required />
+              <TextField
+                {...params}
+                label="選擇行動使用者"
+                margin="normal"
+                required={selectedUsers.length === 0} // 如果沒有選擇任何值才顯示必填
+                error={selectedUsers.length === 0} // 如果沒有選擇任何值顯示錯誤狀態
+                helperText={selectedUsers.length === 0 ? '請選擇至少一個使用者' : ''}
+              />
             )}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (

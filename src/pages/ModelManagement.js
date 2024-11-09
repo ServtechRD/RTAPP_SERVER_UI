@@ -21,38 +21,49 @@ const ModelManagement = () => {
 
       // 獲取行動使用者
       const mobileUsersResponse = await api.get('/users/mobile/');
-      const mobileUsersList = mobileUsersResponse.data;
+      const mobileUsersList = mobileUsersResponse.users.filter((user) => user.mode === 'MOBILE');
       setMobileUsers(mobileUsersList);
 
       // 獲取所有版本
       const versionsResponse = await api.get('/versions/');
 
-      // 獲取所有使用者的版本映射
-      // 首先列出所有要獲取映射的使用者名稱
-      const usernames = mobileUsersResponse.data.map((user) => user.name || user.username);
+      // 獲取所有使用者的版本映射 - 修改為 for...of 循環
+      const mappingResponses = [];
+      for (const user of mobileUsersList) {
+        try {
+          const response = await api.get(`/versions/mapping/${user.username}`);
+          mappingResponses.push(response);
+        } catch {
+          mappingResponses.push({ data: [] });
+        }
+      }
 
-      // 獲取每個使用者的映射
-      const mappingPromises = usernames.map((username) =>
-        api.get(`/versions/mapping/${username}`).catch(() => ({ data: [] }))
-      );
-
-      const mappingResponses = await Promise.all(mappingPromises);
-      const allMappings = mappingResponses.flatMap((response) => response.data);
+      const allMappings = [];
+      for (const response of mappingResponses) {
+        if (response.data) {
+          allMappings.push(...response.data);
+        }
+      }
 
       // 處理版本數據
-      const versionData = versionsResponse.data
-        .map((version) => {
-          // 找到此版本相關的所有映射
-          const versionMappings = allMappings.filter(
-            (mapping) => mapping.version_name === version.version_name
-          );
+      const versionData = [];
+      for (const version of versionsResponse.data) {
+        // 找到此版本相關的所有映射
+        const versionMappings = allMappings.filter(
+          (mapping) => mapping.version_name === version.version_name
+        );
 
-          // 找出哪些行動使用者被分配到此版本
-          const assignedMobileUsers = versionMappings
-            .map((mapping) => mobileUsersList.find((user) => user.username === mapping.user_name))
-            .filter(Boolean); // 移除未定義的值
+        // 找出哪些行動使用者被分配到此版本
+        const assignedMobileUsers = [];
+        for (const mapping of versionMappings) {
+          const user = mobileUsersList.find((user) => user.username === mapping.user_name);
+          if (user) {
+            assignedMobileUsers.push(user);
+          }
+        }
 
-          return {
+        if (assignedMobileUsers.length > 0) {
+          versionData.push({
             ...version,
             id: version.id,
             assignedUsers: assignedMobileUsers,
@@ -60,13 +71,9 @@ const ModelManagement = () => {
               username: m.user_name,
               date: new Date(m.update_date).toLocaleString('zh-TW'),
             })),
-          };
-        })
-        // 只保留有分配到行動使用者的版本
-        .filter((version) => version.assignedUsers.length > 0);
-
-      setVersions(versionData);
-      setError('');
+          });
+        }
+      }
     } catch (err) {
       setError('獲取資料失敗: ' + (err.response?.data?.detail || err.message));
     } finally {

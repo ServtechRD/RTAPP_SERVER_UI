@@ -39,11 +39,20 @@ const MainLayout = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh', // 確保最小高度為視窗高度
+        overflow: 'hidden', // 防止內容溢出
+      }}
+    >
       <CssBaseline />
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: (theme) => theme.palette.primary.main,
+        }}
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
@@ -60,14 +69,22 @@ const MainLayout = ({ children }) => {
         sx={{
           width: drawerWidth,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+            backgroundColor: (theme) => theme.palette.background.paper,
           },
         }}
       >
-        <Toolbar /> {/* This creates space for the AppBar */}
-        <Box sx={{ overflow: 'auto' }}>
+        <Toolbar /> {/* 為 AppBar 預留空間 */}
+        <Box
+          sx={{
+            overflow: 'auto',
+            height: '100%',
+            backgroundColor: (theme) => theme.palette.background.paper,
+          }}
+        >
           <List>
             {menuItems.map((item) => (
               <ListItem
@@ -75,9 +92,29 @@ const MainLayout = ({ children }) => {
                 key={item.text}
                 selected={location.pathname === item.path}
                 onClick={() => history.push(item.path)}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: (theme) => theme.palette.action.selected,
+                    '&:hover': {
+                      backgroundColor: (theme) => theme.palette.action.hover,
+                    },
+                  },
+                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemIcon
+                  sx={{
+                    minWidth: 40,
+                    color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  sx={{
+                    color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                  }}
+                />
               </ListItem>
             ))}
           </List>
@@ -88,13 +125,24 @@ const MainLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          mt: '64px', // AppBar height
+          height: '100vh',
+          overflow: 'auto',
+          backgroundColor: (theme) => theme.palette.background.default,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {children}
+        <Toolbar /> {/* 為 AppBar 預留空間 */}
+        <Box
+          sx={{
+            p: 3,
+            flexGrow: 1,
+            maxWidth: '100%',
+            overflow: 'auto',
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

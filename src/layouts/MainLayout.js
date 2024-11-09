@@ -63,6 +63,15 @@ const MainLayout = ({ children }) => {
         }}
       >
         <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="toggle drawer"
+            onClick={toggleDrawer}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            {drawerOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             管理系統
           </Typography>

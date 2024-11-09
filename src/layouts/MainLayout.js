@@ -58,8 +58,13 @@ const MainLayout = ({ children }) => {
       <AppBar
         position="fixed"
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: (theme) => theme.palette.primary.main,
+          width: drawerOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
+          ml: drawerOpen ? `${drawerWidth}px` : 0,
+          transition: (theme) =>
+            theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
         }}
       >
         <Toolbar>
@@ -84,13 +89,16 @@ const MainLayout = ({ children }) => {
       <Drawer
         variant="permanent"
         sx={{
-          width: drawerWidth,
-          flexShrink: 0,
+          width: drawerOpen ? drawerWidth : 0,
+          transition: (theme) =>
+            theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            borderRight: '1px solid rgba(0, 0, 0, 0.12)',
-            backgroundColor: (theme) => theme.palette.background.paper,
+            whiteSpace: 'nowrap',
             transition: (theme) =>
               theme.transitions.create('width', {
                 easing: theme.transitions.easing.sharp,
@@ -99,11 +107,6 @@ const MainLayout = ({ children }) => {
             ...(!drawerOpen && {
               width: (theme) => theme.spacing(7),
               overflowX: 'hidden',
-              transition: (theme) =>
-                theme.transitions.create('width', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.leavingScreen,
-                }),
             }),
           },
         }}
@@ -138,7 +141,15 @@ const MainLayout = ({ children }) => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                {drawerOpen && <ListItemText primary={item.text} sx={{ opacity: 1 }} />}
+                {drawerOpen && (
+                  <ListItemText
+                    primary={item.text}
+                    sx={{
+                      opacity: 1,
+                      color: 'text.primary',
+                    }}
+                  />
+                )}
               </ListItem>
             ))}
           </List>
@@ -149,23 +160,30 @@ const MainLayout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 1, // 改為更小的 padding
           width: '100%',
-          ml: { sm: `${drawerOpen ? drawerWidth : (theme) => theme.spacing(7)}px` },
+          marginLeft: drawerOpen ? 0 : (theme) => theme.spacing(-7),
+          p: { xs: 1, sm: 2 },
           transition: (theme) =>
-            theme.transitions.create('margin', {
+            theme.transitions.create(['margin', 'width'], {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
             }),
+          '& > *': {
+            transition: (theme) =>
+              theme.transitions.create('margin', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+              }),
+            marginLeft: drawerOpen ? `${drawerWidth}px` : (theme) => theme.spacing(7),
+          },
         }}
       >
         <Toolbar /> {/* 為 AppBar 預留空間 */}
         <Box
           sx={{
+            p: { xs: 1, sm: 2 },
             backgroundColor: 'background.default',
-            borderRadius: 1,
-            overflow: 'hidden',
-            maxWidth: '100%',
+            minHeight: `calc(100vh - ${64}px)`, // 減去 AppBar 高度
           }}
         >
           {children}

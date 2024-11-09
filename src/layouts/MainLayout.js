@@ -29,7 +29,7 @@ const MainLayout = ({ children }) => {
 
   const menuItems = [
     { text: '客戶管理', icon: <PeopleIcon />, path: '/customers' },
-    { text: '模型上傳', icon: <CloudUploadIcon />, path: '/models' },
+    { text: '模型上傳', icon: <CloudUploadIcon />, path: '/modelmgrs' },
     { text: '報表查詢', icon: <AssessmentIcon />, path: '/reports' },
   ];
 

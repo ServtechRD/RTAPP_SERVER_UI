@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import LoginPage from './pages/LoginPage';
 import MainLayout from './layouts/MainLayout';
 import CustomerManagement from './pages/CustomerManagement';
-import ModelUpload from './pages/ModelUpload';
+import ModelManagement from './pages/ModelManagement';
 import ReportQuery from './pages/ReportQuery';
 import { AuthProvider } from './contexts/AuthContext';
 

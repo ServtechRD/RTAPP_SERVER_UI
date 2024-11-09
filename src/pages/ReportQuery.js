@@ -413,18 +413,39 @@ const ReportQuery = () => {
           disableSelectionOnClick
           loading={loading}
           autoHeight
+          getRowHeight={() => 'auto'} // 自動行高
           sx={{
-            backgroundColor: 'white',
             '& .MuiDataGrid-cell': {
-              whiteSpace: 'normal', // 允許換行
-              padding: '8px', // 增加內距
+              padding: '8px', // cell padding
               '&:focus': {
                 outline: 'none',
               },
             },
             '& .MuiDataGrid-row': {
-              minHeight: '60px !important', // 最小行高
+              minHeight: '48px !important', // 最小行高
               // 確保即使內容很少時也有合適的高度
+              '& .MuiDataGrid-cell': {
+                whiteSpace: 'normal', // 允許換行
+                wordWrap: 'break-word', // 長單字換行
+                lineHeight: '1.2', // 行高
+                display: 'flex',
+                alignItems: 'center',
+                maxHeight: 'none !important', // 移除最大高度限制
+                overflow: 'visible', // 允許內容超出
+              },
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              minHeight: '400px', // 設定最小高度
+            },
+            '& .MuiDataGrid-virtualScrollerContent': {
+              minHeight: '400px', // 設定最小高度
+            },
+          }}
+          componentsProps={{
+            row: {
+              style: {
+                maxHeight: 'none',
+              },
             },
           }}
           localeText={zhTW.components.MuiDataGrid.defaultProps.localeText}

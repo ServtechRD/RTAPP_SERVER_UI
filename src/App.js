@@ -27,7 +27,7 @@ function App() {
                 <MainLayout>
                   <Switch>
                     <Route exact path="/customers" component={CustomerManagement} />
-                    <Route exact path="/models" component={ModelManagement} />
+                    <Route exact path="/modelmgrs" component={ModelManagement} />
                     <Route exact path="/reports" component={ReportQuery} />
                     <Redirect exact from="/" to="/customers" />
                   </Switch>

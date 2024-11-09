@@ -1,134 +1,164 @@
-// src/pages/ModelUpload.js
+// src/pages/ModelManagement.js
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Button, 
-  Typography,
-  Paper,
-  FormControlLabel,
-  Switch,
-  TextField,
-  Chip,
-  Alert
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { 
-  CloudUpload as CloudUploadIcon,
-} from '@mui/icons-material';
-import axios from 'axios';
+import { Box, Button, Paper, Typography, Alert } from '@mui/material';
+import { DataGrid, zhTW } from '@mui/x-data-grid';
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import ModelUploadDialog from '../components/ModelUploadDialog';
+import api from '../utils/api';
 
-const ModelUpload = () => {
+const ModelManagement = () => {
   const [versions, setVersions] = useState([]);
+  const [mappings, setMappings] = useState([]);
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchVersions();
-  }, []);
-
-  const fetchVersions = async () => {
+  // 獲取版本數據和映射數據
+  const fetchData = async () => {
     try {
-      // 假設這個API會返回所有版本信息
-      const response = await axios.get('/version_management/');
-      const versionsWithDetails = await Promise.all(
-        response.data.map(async (version) => {
-          const actionResponse = await axios.get(`/models/action?version=${version.version_name}`);
-          return {
-            ...version,
-            ...actionResponse.data,
-            id: version.id
-          };
-        })
-      );
-      setVersions(versionsWithDetails);
+      setLoading(true);
+      // 獲取版本列表
+      const versionsResponse = await api.get('/versions/');
+
+      // 假設當前用戶名從 localStorage 獲取
+      const currentUser = localStorage.getItem('user');
+
+      // 獲取當前用戶的版本映射
+      const mappingsResponse = await api.get(`/versions/mapping/${currentUser}`);
+
+      // 合併版本數據與映射數據
+      const versionData = versionsResponse.data.map((version) => {
+        // 找到對應的映射
+        const mapping = mappingsResponse.data.find((m) => m.version_name === version.version_name);
+
+        return {
+          ...version,
+          id: version.id,
+          mappingInfo: mapping
+            ? `分配於 ${new Date(mapping.update_date).toLocaleString('zh-TW')}`
+            : '未分配',
+        };
+      });
+
+      setVersions(versionData);
+      setMappings(mappingsResponse.data);
+      setError('');
+    } catch (err) {
+      setError('獲取版本資料失敗: ' + (err.response?.data?.detail || err.message));
+    } finally {
       setLoading(false);
-    } catch (error) {
-      console.error('Error fetching versions:', error);
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const columns = [
-    { field: 'version_name', headerName: 'Version', width: 150 },
-    { 
-      field: 'showModel', 
-      headerName: 'Show Model', 
-      width: 130,
-      renderCell: (params) => (
-        <Switch checked={params.value} disabled />
-      )
-    },
-    { 
-      field: 'showScore', 
-      headerName: 'Show Score', 
-      width: 130,
-      renderCell: (params) => (
-        <Switch checked={params.value} disabled />
-      )
+    {
+      field: 'version_name',
+      headerName: '版本名稱',
+      width: 150,
+      flex: 1,
     },
     {
-      field: 'modelThreshold',
-      headerName: 'Threshold',
-      width: 130,
-      renderCell: (params) => (
-        <Typography>{params.value.toFixed(2)}</Typography>
-      )
-    },
-    {
-      field: 'users',
-      headerName: 'Assigned Users',
-      width: 300,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          {params.row.users?.map((user) => (
-            <Chip
-              key={user}
-              label={user}
-              size="small"
-            />
-          ))}
-        </Box>
-      )
-    },
-    {
-      field: 'uploaded_at',
-      headerName: 'Upload Date',
+      field: 'upload_date',
+      headerName: '上傳時間',
       width: 180,
-      valueGetter: (params) => new Date(params.row.uploaded_at).toLocaleString()
-    }
+      valueGetter: (params) => {
+        return new Date(params.value).toLocaleString('zh-TW');
+      },
+    },
+    {
+      field: 'uploaded_by',
+      headerName: '上傳者',
+      width: 120,
+    },
+    {
+      field: 'file_path',
+      headerName: '檔案路徑',
+      width: 200,
+      flex: 1,
+    },
+    {
+      field: 'mappingInfo',
+      headerName: '分配狀態',
+      width: 200,
+      valueGetter: (params) => params.row.mappingInfo,
+    },
   ];
 
+  const handleUploadSuccess = async () => {
+    await fetchData();
+    setOpenUploadDialog(false);
+  };
+
   return (
-    <Box sx={{ height: 600, width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h5" component="h2">
-          Model Version Management
+    <Paper sx={{ height: '100%', p: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Typography variant="h6" component="h2">
+          模型版本管理
         </Typography>
         <Button
           variant="contained"
           startIcon={<CloudUploadIcon />}
           onClick={() => setOpenUploadDialog(true)}
         >
-          Upload New Model
+          上傳新版本
         </Button>
       </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
 
       <DataGrid
         rows={versions}
         columns={columns}
         pageSize={10}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={[10, 25, 50]}
         disableSelectionOnClick
         loading={loading}
+        autoHeight
+        localeText={zhTW.components.MuiDataGrid.defaultProps.localeText}
+        sx={{
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none',
+          },
+        }}
+        getRowClassName={(params) => {
+          const mapping = mappings.find((m) => m.version_name === params.row.version_name);
+          return mapping ? 'assigned-version' : '';
+        }}
       />
 
       <ModelUploadDialog
         open={openUploadDialog}
         onClose={() => setOpenUploadDialog(false)}
-        onSuccess={fetchVersions}
+        onSuccess={handleUploadSuccess}
       />
-    </Box>
+
+      <style>
+        {`
+          .assigned-version {
+            background-color: rgba(25, 118, 210, 0.08);
+          }
+          .assigned-version:hover {
+            background-color: rgba(25, 118, 210, 0.12) !important;
+          }
+        `}
+      </style>
+    </Paper>
   );
 };
 
-export default ModelUpload;
+export default ModelManagement;

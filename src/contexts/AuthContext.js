@@ -31,9 +31,6 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/token', formData);
       const { access_token } = response.data;
 
-      // if can't not login , will cause error
-      const webResonse = await api.get('/weblogin/');
-
       // 設置 token 到 api instance
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
@@ -44,6 +41,10 @@ export const AuthProvider = ({ children }) => {
       // 更新狀態
       setToken(access_token);
       setUser(username);
+
+      // if can't not login , will cause error
+      const webResonse = await api.get('/weblogin/');
+      console.log(webResonse.data);
 
       return true;
     } catch (error) {

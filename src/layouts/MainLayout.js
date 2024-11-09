@@ -47,26 +47,9 @@ const MainLayout = ({ children }) => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        minHeight: '100vh', // 確保最小高度為視窗高度
-        overflow: 'hidden', // 防止內容溢出
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: drawerOpen ? `calc(100% - ${drawerWidth}px)` : '100%',
-          ml: drawerOpen ? `${drawerWidth}px` : 0,
-          transition: (theme) =>
-            theme.transitions.create(['width', 'margin'], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
-            }),
-        }}
-      >
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             color="inherit"
@@ -85,40 +68,23 @@ const MainLayout = ({ children }) => {
           </IconButton>
         </Toolbar>
       </AppBar>
-
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerOpen ? drawerWidth : 0,
-          transition: (theme) =>
-            theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            whiteSpace: 'nowrap',
-            transition: (theme) =>
-              theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-            ...(!drawerOpen && {
-              width: (theme) => theme.spacing(7),
-              overflowX: 'hidden',
-            }),
-          },
-        }}
-        open={drawerOpen}
-      >
-        <Toolbar /> {/* 為 AppBar 預留空間 */}
-        <Box
+      <Toolbar /> {/* 為 AppBar 預留空間 */}
+      {/* 下方的容器包含 Drawer 和主內容 */}
+      <Box sx={{ display: 'flex', flex: 1 }}>
+        {/* Drawer 在 AppBar 下方 */}
+        <Drawer
+          variant="permanent"
           sx={{
-            overflow: 'auto',
-            height: '100%',
-            backgroundColor: (theme) => theme.palette.background.paper,
+            width: drawerOpen ? drawerWidth : miniDrawerWidth,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: drawerOpen ? drawerWidth : miniDrawerWidth,
+              boxSizing: 'border-box',
+              top: '64px', // AppBar 的高度
+              height: 'calc(100% - 64px)', // 減去 AppBar 的高度
+            },
           }}
+          open={drawerOpen}
         >
           <List>
             {menuItems.map((item) => (
@@ -141,49 +107,24 @@ const MainLayout = ({ children }) => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                {drawerOpen && (
-                  <ListItemText
-                    primary={item.text}
-                    sx={{
-                      opacity: 1,
-                      color: 'text.primary',
-                    }}
-                  />
-                )}
+                {drawerOpen && <ListItemText primary={item.text} />}
               </ListItem>
             ))}
           </List>
-        </Box>
-      </Drawer>
+        </Drawer>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          width: '100%',
-          marginLeft: drawerOpen ? 0 : (theme) => theme.spacing(-7),
-          p: { xs: 1, sm: 2 },
-          transition: (theme) =>
-            theme.transitions.create(['margin', 'width'], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
-            }),
-          '& > *': {
+        {/* 主內容區域 */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 2,
+            width: `calc(100% - ${drawerOpen ? drawerWidth : miniDrawerWidth}px)`,
             transition: (theme) =>
-              theme.transitions.create('margin', {
+              theme.transitions.create(['width', 'margin'], {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
               }),
-            marginLeft: drawerOpen ? `${drawerWidth}px` : (theme) => theme.spacing(7),
-          },
-        }}
-      >
-        <Toolbar /> {/* 為 AppBar 預留空間 */}
-        <Box
-          sx={{
-            p: { xs: 1, sm: 2 },
-            backgroundColor: 'background.default',
-            minHeight: `calc(100vh - ${64}px)`, // 減去 AppBar 高度
           }}
         >
           {children}

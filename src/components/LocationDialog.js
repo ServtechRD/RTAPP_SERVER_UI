@@ -140,16 +140,14 @@ const LocationDialog = ({ open, onClose, customer, onSuccess }) => {
             value={newLocation}
             onChange={(e) => setNewLocation(e.target.value)}
             disabled={loading}
-            placeholder="請輸入地址"
+            placeholder="請輸入地點"
           />
           <Button
             variant="contained"
             onClick={handleAddLocation}
             disabled={!newLocation.trim() || loading}
             startIcon={<AddIcon />}
-          >
-            新增
-          </Button>
+          ></Button>
         </Box>
 
         <Divider sx={{ my: 2 }} />
@@ -209,7 +207,7 @@ const LocationDialog = ({ open, onClose, customer, onSuccess }) => {
                         disabled={loading}
                       />
                     </Tooltip>
-                    <Tooltip title="編輯地址">
+                    <Tooltip title="編輯地點">
                       <IconButton
                         onClick={() => handleStartEdit(location)}
                         disabled={loading}

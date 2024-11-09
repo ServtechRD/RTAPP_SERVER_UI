@@ -1,6 +1,16 @@
 // src/pages/CustomerManagement.js
 import React, { useState, useEffect } from 'react';
-import { Box, Button, IconButton, Typography, Switch, Paper, Tooltip, Alert } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  Switch,
+  Paper,
+  Tooltip,
+  Alert,
+  Checkbox,
+} from '@mui/material';
 import { DataGrid, zhTW } from '@mui/x-data-grid';
 import { Add as AddIcon, Edit as EditIcon, LocationOn as LocationIcon } from '@mui/icons-material';
 import CustomerDialog from '../components/CustomerDialog';
@@ -14,11 +24,16 @@ const CustomerManagement = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showAllData, setShowAllData] = useState(false); // 新增狀態
 
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/clients_with_locations/');
+      // 根據 showAllData 決定是否添加 all 參數
+      const response = await api.get('/clients_with_locations/', {
+        params: showAllData ? { all: true } : {},
+      });
+
       const customersData = response.data.map((customer) => ({
         ...customer,
         locationCount: customer.locations?.length || 0,
@@ -35,7 +50,7 @@ const CustomerManagement = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [showAllData]);
 
   const columns = [
     {
@@ -140,10 +155,54 @@ const CustomerManagement = () => {
 
   return (
     <Paper sx={{ height: '100%', p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          客戶管理
-        </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            flexGrow: 1,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            客戶管理
+          </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showAllData}
+                onChange={(e) => setShowAllData(e.target.checked)}
+                color="primary"
+              />
+            }
+            label={
+              <Typography
+                variant="body2"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: 'text.secondary',
+                }}
+              >
+                顯示全部資料
+                <Tooltip title="勾選顯示全部資料，不勾選僅顯示啟用資料">
+                  <IconButton size="small">
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Typography>
+            }
+          />
+        </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddCustomer}>
           新增客戶
         </Button>
@@ -171,9 +230,19 @@ const CustomerManagement = () => {
           '& .MuiDataGrid-row:hover': {
             backgroundColor: 'action.hover',
           },
+          // 新增：禁用行的樣式
+          '& .MuiDataGrid-row.disabled': {
+            backgroundColor: 'action.disabledBackground',
+            color: 'text.disabled',
+            '&:hover': {
+              backgroundColor: 'action.disabledBackground',
+            },
+          },
         }}
+        getRowClassName={(params) => (!params.row.enabled ? 'disabled' : '')}
       />
 
+      {/* Dialog 組件保持不變 */}
       <CustomerDialog
         open={openCustomerDialog}
         onClose={() => setOpenCustomerDialog(false)}

@@ -32,8 +32,13 @@ import PhotoDialog from '../components/PhotoDialog';
 import { format } from 'date-fns';
 
 const ReportQuery = () => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  // 在 state 初始化時設置預設日期
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 7); // 7天前
+    return date;
+  });
+  const [endDate, setEndDate] = useState(new Date()); // 今天
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedOwner, setSelectedOwner] = useState('');
   const [customers, setCustomers] = useState([]);
@@ -160,7 +165,7 @@ const ReportQuery = () => {
     {
       field: 'ownerName',
       headerName: '負責人員',
-      width: 130,
+      width: 100,
     },
     {
       field: 'customerId',
@@ -186,7 +191,8 @@ const ReportQuery = () => {
       headerName: '作業內容',
       width: 130,
       valueGetter: (params) => {
-        const taskName = params.value == 0 ? '現場作業(勾掛安全帶)' : '現場作業(不需要勾掛安全帶)';
+        const taskName =
+          params.value == 0 ? '現場作業<br/>(勾掛安全帶)' : '現場作業<br/>(不需要勾掛安全帶)';
         return taskName;
       },
     },

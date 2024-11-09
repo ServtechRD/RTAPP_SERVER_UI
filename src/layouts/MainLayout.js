@@ -19,11 +19,19 @@ import {
   CloudUpload as CloudUploadIcon,
   Assessment as AssessmentIcon,
   ExitToApp as LogoutIcon,
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
 const MainLayout = ({ children }) => {
+  const [drawerOpen, setDrawerOpen] = useState(true);
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
   const history = useHistory();
   const location = useLocation();
 
@@ -52,6 +60,20 @@ const MainLayout = ({ children }) => {
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: (theme) => theme.palette.primary.main,
+          transition: (theme) =>
+            theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
+          ...(drawerOpen && {
+            marginLeft: drawerWidth,
+            width: `calc(100% - ${drawerWidth}px)`,
+            transition: (theme) =>
+              theme.transitions.create(['width', 'margin'], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+          }),
         }}
       >
         <Toolbar>

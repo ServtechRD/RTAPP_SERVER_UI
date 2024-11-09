@@ -1,36 +1,34 @@
 // src/components/ModelUploadDialog.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
-  Alert,
+  TextField,
   FormControlLabel,
   Switch,
   Box,
+  Alert,
   Typography,
   Autocomplete,
-  Chip
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import axios from 'axios';
+import api from '../utils/api';
 
 const ModelUploadDialog = ({ open, onClose, onSuccess }) => {
   const [versionName, setVersionName] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [showModel, setShowModel] = useState(true);
   const [showScore, setShowScore] = useState(true);
   const [threshold, setThreshold] = useState(0.5);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [availableUsers, setAvailableUsers] = useState([]);
-  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 加載所有可用的用戶
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       fetchUsers();
     }
@@ -38,140 +36,113 @@ const ModelUploadDialog = ({ open, onClose, onSuccess }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/users/');
+      const response = await api.get('/users/');
       setAvailableUsers(response.data);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      setError('Failed to load users');
-    }
-  };
-
-  const resetForm = () => {
-    setVersionName('');
-    setSelectedFile(null);
-    setShowModel(true);
-    setShowScore(true);
-    setThreshold(0.5);
-    setSelectedUsers([]);
-    setError('');
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/zip') {
-      setSelectedFile(file);
-      setError('');
-    } else {
-      setError('Please upload a ZIP file');
-      setSelectedFile(null);
+      setError('獲取使用者列表失敗');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setUploading(true);
+    setLoading(true);
 
-    if (!selectedFile || !versionName) {
-      setError('Please fill in all required fields');
-      setUploading(false);
+    if (!file || !versionName || selectedUsers.length === 0) {
+      setError('請填寫所有必要欄位');
+      setLoading(false);
       return;
     }
 
     try {
       const formData = new FormData();
       formData.append('versionName', versionName);
-      formData.append('zipFile', selectedFile);
+      formData.append('zipFile', file);
       formData.append('showModel', showModel);
       formData.append('showScore', showScore);
       formData.append('threshold', threshold);
       formData.append('usernameList', selectedUsers.join('|'));
 
-      await axios.post('/upload_version/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.post('/upload_version/', formData);
 
-      onSuccess();
-      onClose();
-      resetForm();
+      if (response.data.status === 'success') {
+        if (onSuccess) {
+          onSuccess();
+        }
+        onClose();
+      } else {
+        setError(response.data.message || '上傳失敗');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload model');
+      setError(err.response?.data?.detail || '上傳失敗');
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Upload New Model Version</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>上傳新模型版本</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           <TextField
-            margin="dense"
-            label="Version Name"
             fullWidth
+            label="版本名稱"
             value={versionName}
             onChange={(e) => setVersionName(e.target.value)}
             required
-            sx={{ mb: 2 }}
+            margin="normal"
           />
 
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ my: 2 }}>
             <input
               type="file"
               accept=".zip"
-              onChange={handleFileChange}
+              onChange={(e) => setFile(e.target.files[0])}
               style={{ display: 'none' }}
-              id="model-file-upload"
+              id="model-upload"
             />
-            <label htmlFor="model-file-upload">
-              <Button
-                variant="contained"
-                component="span"
-              >
-                Choose ZIP File
+            <label htmlFor="model-upload">
+              <Button variant="contained" component="span">
+                選擇檔案
               </Button>
             </label>
-            {selectedFile && (
+            {file && (
               <Typography variant="body2" sx={{ mt: 1 }}>
-                Selected file: {selectedFile.name}
+                已選擇: {file.name}
               </Typography>
             )}
           </Box>
 
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ my: 2 }}>
             <FormControlLabel
               control={
-                <Switch
-                  checked={showModel}
-                  onChange={(e) => setShowModel(e.target.checked)}
-                />
+                <Switch checked={showModel} onChange={(e) => setShowModel(e.target.checked)} />
               }
-              label="Show Model"
+              label="顯示模型"
             />
             <FormControlLabel
               control={
-                <Switch
-                  checked={showScore}
-                  onChange={(e) => setShowScore(e.target.checked)}
-                />
+                <Switch checked={showScore} onChange={(e) => setShowScore(e.target.checked)} />
               }
-              label="Show Score"
+              label="顯示分數"
             />
           </Box>
 
           <TextField
+            fullWidth
+            label="閾值"
             type="number"
-            label="Model Threshold"
             value={threshold}
             onChange={(e) => setThreshold(Number(e.target.value))}
-            inputProps={{ min: 0, max: 1, step: 0.1 }}
-            fullWidth
-            sx={{ mb: 2 }}
+            inputProps={{ step: 0.1, min: 0, max: 1 }}
+            margin="normal"
           />
 
           <Autocomplete
@@ -180,38 +151,24 @@ const ModelUploadDialog = ({ open, onClose, onSuccess }) => {
             onChange={(event, newValue) => {
               setSelectedUsers(newValue);
             }}
-            options={availableUsers.map(user => user.username)}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  label={option}
-                  {...getTagProps({ index })}
-                />
-              ))
-            }
+            options={availableUsers.map((user) => user.username)}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Assign Users"
-                placeholder="Select users"
-              />
+              <TextField {...params} label="選擇使用者" margin="normal" required />
             )}
           />
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => {
-            onClose();
-            resetForm();
-          }}>
-            Cancel
+          <Button onClick={onClose} disabled={loading}>
+            取消
           </Button>
           <LoadingButton
-            loading={uploading}
             type="submit"
             variant="contained"
-            disabled={!selectedFile || !versionName}
+            loading={loading}
+            disabled={!file || !versionName || selectedUsers.length === 0}
           >
-            Upload
+            上傳
           </LoadingButton>
         </DialogActions>
       </form>

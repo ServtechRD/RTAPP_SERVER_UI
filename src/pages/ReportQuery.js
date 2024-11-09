@@ -37,6 +37,7 @@ const ReportQuery = () => {
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedOwner, setSelectedOwner] = useState('');
   const [customers, setCustomers] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [owners, setOwners] = useState([]);
   const [queryResults, setQueryResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -52,12 +53,13 @@ const ReportQuery = () => {
   useEffect(() => {
     fetchCustomers();
     fetchOwners();
+    fetchLocations();
   }, []);
 
   const fetchCustomers = async () => {
     try {
       const response = await api.get('/clients/');
-      const activeCustomers = response.data.filter((client) => client.enabled !== false);
+      const activeCustomers = response.data;
       setCustomers(activeCustomers);
     } catch (error) {
       console.error('獲取客戶資料失敗:', error);
@@ -73,6 +75,17 @@ const ReportQuery = () => {
     } catch (error) {
       console.error('獲取負責人資料失敗:', error);
       setError('獲取負責人資料失敗');
+    }
+  };
+
+  const fetchLocations = async () => {
+    try {
+      const response = await api.get('/locations/');
+      const activeLocations = response.data;
+      setLocations(activeCustomers);
+    } catch (error) {
+      console.error('獲取地點資料失敗:', error);
+      setError('獲取地點資料失敗');
     }
   };
 
@@ -94,8 +107,11 @@ const ReportQuery = () => {
       };
 
       const response = await api.get('/photos/query/', { params });
-      setQueryResults(response.data);
-      calculateStats(response.data);
+
+      let results = response.data;
+
+      setQueryResults(resulta);
+      calculateStats(result);
     } catch (error) {
       console.error('查詢失敗:', error);
       setError(error.response?.data?.detail || '查詢資料時發生錯誤');
@@ -136,11 +152,6 @@ const ReportQuery = () => {
 
   const columns = [
     {
-      field: 'id',
-      headerName: '編號',
-      width: 90,
-    },
-    {
       field: 'saveTime',
       headerName: '時間',
       width: 180,
@@ -164,24 +175,64 @@ const ReportQuery = () => {
       field: 'locationId',
       headerName: '拍照地點',
       width: 130,
+      valueGetter: (params) => {
+        const location = locations.find((c) => c.id === params.value);
+        return location ? location.address : params.value;
+      },
     },
     {
       field: 'taskId',
       headerName: '作業內容',
       width: 130,
+      valueGetter: (params) => {
+        const taskName = params.value == 0 ? '現場作業(勾掛安全帶)' : '現場作業(不需要勾掛安全帶)';
+        return taskName;
+      },
     },
     {
       field: 'detectLabels',
       headerName: '辨識物件',
       width: 200,
-      renderCell: (params) => (
-        <Tooltip title={params.value}>
-          <span>
-            {params.value?.split(',').slice(0, 3).join(', ')}
-            {params.value?.split(',').length > 3 ? '...' : ''}
-          </span>
-        </Tooltip>
-      ),
+      valueGetter: (params) => {
+        // 如果沒有標籤資料，返回空字串
+        if (!params.value) return '';
+
+        // 用 | 分隔標籤
+        const labels = params.value.split('|');
+
+        // 從每個標籤中取出 Name
+        const names = labels.map((label) => {
+          const match = label.match(/@(.+)$/);
+          return match ? match[1] : label;
+        });
+
+        return names.join(', ');
+      },
+      renderCell: (params) => {
+        if (!params.value) return '';
+
+        // 用 | 分隔標籤
+        const labels = params.row.detectLabels.split('|');
+
+        // 從每個標籤中取出 Name
+        const names = labels.map((label) => {
+          const match = label.match(/@(.+)$/);
+          return match ? match[1] : label;
+        });
+
+        // 顯示前三個，如果有更多則顯示...
+        const displayNames = names.slice(0, 3).join(', ');
+        const hasMore = names.length > 3;
+
+        return (
+          <Tooltip title={names.join(', ')}>
+            <span>
+              {displayNames}
+              {hasMore ? '...' : ''}
+            </span>
+          </Tooltip>
+        );
+      },
     },
     {
       field: 'actions',

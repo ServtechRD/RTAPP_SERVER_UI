@@ -200,8 +200,8 @@ const ReportQuery = () => {
           style={{
             whiteSpace: 'normal', // 允許換行
             wordWrap: 'break-word', // 長單字換行
-            lineHeight: '1.3', // 行高
-            padding: '8px 0', // 上下padding
+            lineHeight: '1.5', // 行高
+            padding: '2px 0', // 上下padding
             width: '100%', // 使用全寬
           }}
         >

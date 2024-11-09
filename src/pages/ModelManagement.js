@@ -28,8 +28,12 @@ const ModelManagement = () => {
       const versionsResponse = await api.get('/versions/');
 
       // 獲取所有使用者的版本映射
-      const mappingPromises = mobileUsersList.map(
-        (user) => api.get(`/versions/mapping/${user.username}`).catch(() => ({ data: [] })) // 如果某個使用者沒有映射，返回空數組
+      // 首先列出所有要獲取映射的使用者名稱
+      const usernames = mobileUsersResponse.data.map((user) => user.name || user.username);
+
+      // 獲取每個使用者的映射
+      const mappingPromises = usernames.map((username) =>
+        api.get(`/versions/mapping/${username}`).catch(() => ({ data: [] }))
       );
 
       const mappingResponses = await Promise.all(mappingPromises);

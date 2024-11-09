@@ -151,24 +151,23 @@ const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
             onChange={(event, newValue) => {
               setSelectedUsers(newValue);
             }}
-            options={mobileUsers} // 直接傳入整個物件陣列
-            getOptionLabel={(option) => option.username} // 指定要顯示的屬性
+            options={mobileOnlyUsers}
+            getOptionLabel={(option) => `${option.username} (${option.name})`}
             renderInput={(params) => (
               <TextField {...params} label="選擇行動使用者" margin="normal" required />
             )}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Chip
-                  label={option.username} // 使用物件的 username 屬性
+                  key={index}
+                  label={option.username}
                   {...getTagProps({ index })}
                   color="primary"
                   variant="outlined"
                 />
               ))
             }
-            isOptionEqualToValue={
-              (option, value) => option.username === value.username // 比較物件的 username 屬性
-            }
+            isOptionEqualToValue={(option, value) => option.id === value.id}
           />
         </DialogContent>
 

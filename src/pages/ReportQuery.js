@@ -15,20 +15,19 @@ import {
   IconButton,
   Tooltip,
   Card,
-  CardContent
+  CardContent,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, zhTW } from '@mui/x-data-grid';
 import {
   Search as SearchIcon,
   Clear as ClearIcon,
   Image as ImageIcon,
-  Refresh as RefreshIcon,
-  Download as DownloadIcon
+  Download as DownloadIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import api from '../utils/api';
 import PhotoDialog from '../components/PhotoDialog';
 import { format } from 'date-fns';
 
@@ -47,7 +46,7 @@ const ReportQuery = () => {
   const [stats, setStats] = useState({
     totalPhotos: 0,
     totalCustomers: 0,
-    averageLabelsPerPhoto: 0
+    averageLabelsPerPhoto: 0,
   });
 
   useEffect(() => {
@@ -57,25 +56,29 @@ const ReportQuery = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('/clients/');
-      setCustomers(response.data);
+      const response = await api.get('/clients/');
+      const activeCustomers = response.data.filter((client) => client.enabled !== false);
+      setCustomers(activeCustomers);
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error('獲取客戶資料失敗:', error);
+      setError('獲取客戶資料失敗');
     }
   };
 
   const fetchOwners = async () => {
     try {
-      const response = await axios.get('/users/');
+      const response = await api.get('/unique_owners');
+      // 因為回傳的是字串陣列，直接使用即可
       setOwners(response.data);
     } catch (error) {
-      console.error('Error fetching owners:', error);
+      console.error('獲取負責人資料失敗:', error);
+      setError('獲取負責人資料失敗');
     }
   };
 
   const handleSearch = async () => {
     if (!startDate || !endDate) {
-      setError('Please select both start and end dates');
+      setError('請選擇開始和結束日期');
       return;
     }
 
@@ -86,17 +89,17 @@ const ReportQuery = () => {
       const params = {
         start_time: format(startDate, 'yyyy-MM-dd'),
         end_time: format(endDate, 'yyyy-MM-dd'),
-        ...(selectedCustomer && { customerId: selectedCustomer }),
-        ...(selectedOwner && { ownerName: selectedOwner })
+        customerId: selectedCustomer || undefined,
+        ownerName: selectedOwner || undefined,
       };
 
-      const response = await axios.get('/photos/query/', { params });
+      const response = await api.get('/photos/query/', { params });
       setQueryResults(response.data);
-      
-      // Calculate statistics
       calculateStats(response.data);
     } catch (error) {
-      setError(error.response?.data?.detail || 'An error occurred while fetching data');
+      console.error('查詢失敗:', error);
+      setError(error.response?.data?.detail || '查詢資料時發生錯誤');
+      setQueryResults([]);
     } finally {
       setLoading(false);
     }
@@ -104,7 +107,7 @@ const ReportQuery = () => {
 
   const calculateStats = (data) => {
     const totalPhotos = data.length;
-    const uniqueCustomers = new Set(data.map(item => item.customerId)).size;
+    const uniqueCustomers = new Set(data.map((item) => item.customerId)).size;
     const totalLabels = data.reduce((acc, item) => {
       return acc + (item.detectLabels?.split(',').length || 0);
     }, 0);
@@ -113,7 +116,7 @@ const ReportQuery = () => {
     setStats({
       totalPhotos,
       totalCustomers: uniqueCustomers,
-      averageLabelsPerPhoto: averageLabels
+      averageLabelsPerPhoto: averageLabels,
     });
   };
 
@@ -127,24 +130,50 @@ const ReportQuery = () => {
     setStats({
       totalPhotos: 0,
       totalCustomers: 0,
-      averageLabelsPerPhoto: 0
+      averageLabelsPerPhoto: 0,
     });
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'customerId', headerName: 'Customer', width: 130,
+    {
+      field: 'id',
+      headerName: '編號',
+      width: 90,
+    },
+    {
+      field: 'saveTime',
+      headerName: '時間',
+      width: 180,
+      valueFormatter: (params) => new Date(params.value).toLocaleString('zh-TW'),
+    },
+    {
+      field: 'ownerName',
+      headerName: '負責人員',
+      width: 130,
+    },
+    {
+      field: 'customerId',
+      headerName: '客戶名稱',
+      width: 130,
       valueGetter: (params) => {
-        const customer = customers.find(c => c.id === params.value);
+        const customer = customers.find((c) => c.id === params.value);
         return customer ? customer.name : params.value;
-      }
+      },
     },
-    { field: 'locationId', headerName: 'Location', width: 130 },
-    { field: 'ownerName', headerName: 'Owner', width: 130 },
-    { field: 'saveTime', headerName: 'Date', width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString()
+    {
+      field: 'locationId',
+      headerName: '拍照地點',
+      width: 130,
     },
-    { field: 'detectLabels', headerName: 'Labels', width: 200,
+    {
+      field: 'taskId',
+      headerName: '作業內容',
+      width: 130,
+    },
+    {
+      field: 'detectLabels',
+      headerName: '辨識物件',
+      width: 200,
       renderCell: (params) => (
         <Tooltip title={params.value}>
           <span>
@@ -152,21 +181,21 @@ const ReportQuery = () => {
             {params.value?.split(',').length > 3 ? '...' : ''}
           </span>
         </Tooltip>
-      )
+      ),
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: '辨識結果及照片',
       width: 130,
       sortable: false,
       renderCell: (params) => (
         <Box>
-          <Tooltip title="View Photo">
+          <Tooltip title="查看照片">
             <IconButton onClick={() => handleViewPhoto(params.row)}>
               <ImageIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download">
+          <Tooltip title="下載">
             <IconButton onClick={() => handleDownload(params.row)}>
               <DownloadIcon />
             </IconButton>
@@ -183,8 +212,8 @@ const ReportQuery = () => {
 
   const handleDownload = async (photo) => {
     try {
-      const response = await axios.get(`/photos/download/${photo.id}`, {
-        responseType: 'blob'
+      const response = await api.get(`/photos/download/${photo.id}`, {
+        responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -193,8 +222,10 @@ const ReportQuery = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading photo:', error);
+      console.error('下載失敗:', error);
+      setError('下載照片失敗');
     }
   };
 
@@ -202,14 +233,14 @@ const ReportQuery = () => {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ p: 3 }}>
         <Typography variant="h5" gutterBottom>
-          Photo Report Query
+          照片查詢報表
         </Typography>
 
         <Paper sx={{ p: 3, mb: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={3}>
               <DatePicker
-                label="Start Date"
+                label="開始日期"
                 value={startDate}
                 onChange={setStartDate}
                 renderInput={(params) => <TextField {...params} fullWidth />}
@@ -217,7 +248,7 @@ const ReportQuery = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <DatePicker
-                label="End Date"
+                label="結束日期"
                 value={endDate}
                 onChange={setEndDate}
                 renderInput={(params) => <TextField {...params} fullWidth />}
@@ -225,13 +256,13 @@ const ReportQuery = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth>
-                <InputLabel>Customer</InputLabel>
+                <InputLabel>客戶</InputLabel>
                 <Select
                   value={selectedCustomer}
                   onChange={(e) => setSelectedCustomer(e.target.value)}
-                  label="Customer"
+                  label="客戶"
                 >
-                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="">全部</MenuItem>
                   {customers.map((customer) => (
                     <MenuItem key={customer.id} value={customer.id}>
                       {customer.name}
@@ -242,16 +273,16 @@ const ReportQuery = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth>
-                <InputLabel>Owner</InputLabel>
+                <InputLabel>負責人</InputLabel>
                 <Select
                   value={selectedOwner}
                   onChange={(e) => setSelectedOwner(e.target.value)}
-                  label="Owner"
+                  label="負責人"
                 >
-                  <MenuItem value="">All</MenuItem>
-                  {owners.map((owner) => (
-                    <MenuItem key={owner.id} value={owner.username}>
-                      {owner.username}
+                  <MenuItem value="">全部</MenuItem>
+                  {owners.map((ownerName) => (
+                    <MenuItem key={ownerName} value={ownerName}>
+                      {ownerName}
                     </MenuItem>
                   ))}
                 </Select>
@@ -264,28 +295,27 @@ const ReportQuery = () => {
                 onClick={handleSearch}
                 fullWidth
               >
-                Search
+                查詢
               </Button>
-              <Button
-                variant="outlined"
-                startIcon={<ClearIcon />}
-                onClick={handleClear}
-              >
-                Clear
+              <Button variant="outlined" startIcon={<ClearIcon />} onClick={handleClear}>
+                清除
               </Button>
             </Grid>
           </Grid>
         </Paper>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
 
-        {/* Statistics Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={4}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  Total Photos
+                  照片總數
                 </Typography>
                 <Typography variant="h4">{stats.totalPhotos}</Typography>
               </CardContent>
@@ -295,7 +325,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  Total Customers
+                  客戶總數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
               </CardContent>
@@ -305,7 +335,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  Avg Labels per Photo
+                  平均標籤數
                 </Typography>
                 <Typography variant="h4">{stats.averageLabelsPerPhoto}</Typography>
               </CardContent>
@@ -323,6 +353,7 @@ const ReportQuery = () => {
           loading={loading}
           autoHeight
           sx={{ backgroundColor: 'white' }}
+          localeText={zhTW.components.MuiDataGrid.defaultProps.localeText}
         />
 
         <PhotoDialog

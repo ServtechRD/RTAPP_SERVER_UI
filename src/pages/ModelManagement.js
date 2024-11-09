@@ -8,43 +8,63 @@ import api from '../utils/api';
 
 const ModelManagement = () => {
   const [versions, setVersions] = useState([]);
+  const [mobileUsers, setMobileUsers] = useState([]);
   const [mappings, setMappings] = useState([]);
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 獲取版本數據和映射數據
+  // 獲取行動使用者和版本數據
   const fetchData = async () => {
     try {
       setLoading(true);
-      // 獲取版本列表
+
+      // 獲取行動使用者
+      const mobileUsersResponse = await api.get('/users/mobile/');
+      const mobileUsersList = mobileUsersResponse.data;
+      setMobileUsers(mobileUsersList);
+
+      // 獲取所有版本
       const versionsResponse = await api.get('/versions/');
 
-      // 假設當前用戶名從 localStorage 獲取
-      const currentUser = localStorage.getItem('user');
+      // 獲取所有使用者的版本映射
+      const mappingPromises = mobileUsersList.map(
+        (user) => api.get(`/versions/mapping/${user.username}`).catch(() => ({ data: [] })) // 如果某個使用者沒有映射，返回空數組
+      );
 
-      // 獲取當前用戶的版本映射
-      const mappingsResponse = await api.get(`/versions/mapping/${currentUser}`);
+      const mappingResponses = await Promise.all(mappingPromises);
+      const allMappings = mappingResponses.flatMap((response) => response.data);
 
-      // 合併版本數據與映射數據
-      const versionData = versionsResponse.data.map((version) => {
-        // 找到對應的映射
-        const mapping = mappingsResponse.data.find((m) => m.version_name === version.version_name);
+      // 處理版本數據
+      const versionData = versionsResponse.data
+        .map((version) => {
+          // 找到此版本相關的所有映射
+          const versionMappings = allMappings.filter(
+            (mapping) => mapping.version_name === version.version_name
+          );
 
-        return {
-          ...version,
-          id: version.id,
-          mappingInfo: mapping
-            ? `分配於 ${new Date(mapping.update_date).toLocaleString('zh-TW')}`
-            : '未分配',
-        };
-      });
+          // 找出哪些行動使用者被分配到此版本
+          const assignedMobileUsers = versionMappings
+            .map((mapping) => mobileUsersList.find((user) => user.username === mapping.user_name))
+            .filter(Boolean); // 移除未定義的值
+
+          return {
+            ...version,
+            id: version.id,
+            assignedUsers: assignedMobileUsers,
+            mappingDates: versionMappings.map((m) => ({
+              username: m.user_name,
+              date: new Date(m.update_date).toLocaleString('zh-TW'),
+            })),
+          };
+        })
+        // 只保留有分配到行動使用者的版本
+        .filter((version) => version.assignedUsers.length > 0);
 
       setVersions(versionData);
-      setMappings(mappingsResponse.data);
       setError('');
     } catch (err) {
-      setError('獲取版本資料失敗: ' + (err.response?.data?.detail || err.message));
+      setError('獲取資料失敗: ' + (err.response?.data?.detail || err.message));
     } finally {
       setLoading(false);
     }
@@ -81,10 +101,24 @@ const ModelManagement = () => {
       flex: 1,
     },
     {
-      field: 'mappingInfo',
-      headerName: '分配狀態',
-      width: 200,
-      valueGetter: (params) => params.row.mappingInfo,
+      field: 'assignedUsers',
+      headerName: '已分配使用者',
+      width: 300,
+      flex: 1,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {params.value.map((user, index) => (
+            <Tooltip
+              key={user.username}
+              title={`分配時間: ${
+                params.row.mappingDates.find((m) => m.username === user.username)?.date
+              }`}
+            >
+              <Chip label={user.username} size="small" color="primary" variant="outlined" />
+            </Tooltip>
+          ))}
+        </Box>
+      ),
     },
   ];
 
@@ -135,28 +169,14 @@ const ModelManagement = () => {
             outline: 'none',
           },
         }}
-        getRowClassName={(params) => {
-          const mapping = mappings.find((m) => m.version_name === params.row.version_name);
-          return mapping ? 'assigned-version' : '';
-        }}
       />
 
       <ModelUploadDialog
         open={openUploadDialog}
         onClose={() => setOpenUploadDialog(false)}
         onSuccess={handleUploadSuccess}
+        mobileUsers={mobileUsers}
       />
-
-      <style>
-        {`
-          .assigned-version {
-            background-color: rgba(25, 118, 210, 0.08);
-          }
-          .assigned-version:hover {
-            background-color: rgba(25, 118, 210, 0.12) !important;
-          }
-        `}
-      </style>
     </Paper>
   );
 };

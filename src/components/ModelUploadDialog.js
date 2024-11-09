@@ -17,31 +17,28 @@ import {
 import { LoadingButton } from '@mui/lab';
 import api from '../utils/api';
 
-const ModelUploadDialog = ({ open, onClose, onSuccess }) => {
+const ModelUploadDialog = ({ open, onClose, onSuccess, mobileUsers }) => {
   const [versionName, setVersionName] = useState('');
   const [file, setFile] = useState(null);
   const [showModel, setShowModel] = useState(true);
-  const [showScore, setShowScore] = useState(true);
+  const [showScore, setShowScore] = useState(false);
   const [threshold, setThreshold] = useState(0.5);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [availableUsers, setAvailableUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (open) {
-      fetchUsers();
+    if (!open) {
+      // 重置表單
+      setVersionName('');
+      setFile(null);
+      setShowModel(true);
+      setShowScore(true);
+      setThreshold(0.5);
+      setSelectedUsers([]);
+      setError('');
     }
   }, [open]);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await api.get('/users/');
-      setAvailableUsers(response.data);
-    } catch (error) {
-      setError('獲取使用者列表失敗');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,10 +148,20 @@ const ModelUploadDialog = ({ open, onClose, onSuccess }) => {
             onChange={(event, newValue) => {
               setSelectedUsers(newValue);
             }}
-            options={availableUsers.map((user) => user.username)}
+            options={mobileUsers.map((user) => user.username)}
             renderInput={(params) => (
-              <TextField {...params} label="選擇使用者" margin="normal" required />
+              <TextField {...params} label="選擇行動使用者" margin="normal" required />
             )}
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => (
+                <Chip
+                  label={option}
+                  {...getTagProps({ index })}
+                  color="primary"
+                  variant="outlined"
+                />
+              ))
+            }
           />
         </DialogContent>
 

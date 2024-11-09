@@ -23,25 +23,28 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const formData = new FormData();
       formData.append('username', username);
       formData.append('password', password);
-      
+
       const response = await api.post('/token', formData);
       const { access_token } = response.data;
-      
+
+      // if can't not login , will cause error
+      const webResonse = await api.get('/weblogin/');
+
       // 設置 token 到 api instance
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      
+
       // 保存到 localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('user', username);
-      
+
       // 更新狀態
       setToken(access_token);
       setUser(username);
-      
+
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -55,11 +58,11 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     // 清除 api instance 的 token
     delete api.defaults.headers.common['Authorization'];
-    
+
     // 清除 localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
+
     // 清除狀態
     setToken(null);
     setUser(null);
@@ -70,7 +73,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = useCallback(async () => {
     try {
       if (!token) return false;
-      
+
       // 假設有一個驗證 token 的 API endpoint
       await api.get('/verify-token');
       return true;
@@ -84,14 +87,14 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = useCallback(async () => {
     try {
       if (!token) return false;
-      
+
       const response = await api.post('/refresh-token');
       const { access_token } = response.data;
-      
+
       localStorage.setItem('token', access_token);
       setToken(access_token);
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      
+
       return true;
     } catch (error) {
       logout();
@@ -124,11 +127,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!token,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

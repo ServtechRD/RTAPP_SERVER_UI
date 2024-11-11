@@ -105,8 +105,8 @@ const ReportQuery = () => {
 
     try {
       const params = {
-        start_time: format(startDate, 'yyyy-MM-dd'),
-        end_time: format(endDate, 'yyyy-MM-dd'),
+        start_time: format(startDate, 'yyyy-MM-dd') + ' 00:00:00',
+        end_time: format(endDate, 'yyyy-MM-dd') + ' 23:59:59',
         customerId: selectedCustomer || undefined,
         ownerName: selectedOwner || undefined,
       };

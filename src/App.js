@@ -9,6 +9,7 @@ import ReportQuery from './pages/ReportQuery';
 import UserManagement from './pages/UserManagement'; // 新增這行
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (

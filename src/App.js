@@ -28,33 +28,29 @@ function App() {
               return (
                 <MainLayout>
                   <Switch>
-                    <Route exact path="/customers" component={CustomerManagement} />
-                    <Route
+                    <PrivateRoute
+                      exact
+                      path="/customers"
+                      component={CustomerManagement}
+                      requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
+                    />
+                    <PrivateRoute
                       exact
                       path="/modelmgrs"
-                      render={() => {
-                        const { user } = useAuth();
-                        // 只有 SUPER ADMIN 可以訪問使用者管理
-                        return user?.mode === 'SUPERADMIN' || user?.mode === 'WEB' ? (
-                          <ModelManagement />
-                        ) : (
-                          <Redirect to="/" />
-                        );
-                      }}
+                      component={ModelManagement}
+                      requiredMode={['SUPERADMIN', 'WEB']}
                     />
-                    <Route exact path="/reports" component={ReportQuery} />
-                    <Route
+                    <PrivateRoute
+                      exact
+                      path="/reports"
+                      component={ReportQuery}
+                      requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
+                    />
+                    <PrivateRoute
                       exact
                       path="/users"
-                      render={() => {
-                        const { user } = useAuth();
-                        // 只有 SUPER ADMIN 可以訪問使用者管理
-                        return user?.mode === 'SUPERADMIN' || user?.mode === 'WEB' ? (
-                          <UserManagement />
-                        ) : (
-                          <Redirect to="/" />
-                        );
-                      }}
+                      component={UserManagement}
+                      requiredMode={['SUPERADMIN', 'WEB']}
                     />
                     <Redirect exact from="/" to="/customers" />
                   </Switch>

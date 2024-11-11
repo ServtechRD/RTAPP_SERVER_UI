@@ -33,7 +33,7 @@ const miniDrawerWidth = 65; // 收起時的寬度
 const MainLayout = ({ children }) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
   // 從 AuthContext 獲取當前用戶信息
-  const { user } = useAuth();
+  const { user, mode } = useAuth();
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -89,7 +89,7 @@ const MainLayout = ({ children }) => {
   const canAccessCurrentPath = () => {
     const currentMenuItem = menuItems.find((item) => item.path === location.pathname);
     if (!currentMenuItem) return true; // 如果不在菜單中的路徑，允許訪問
-    return currentMenuItem.allowedModes.includes(user?.mode);
+    return currentMenuItem.allowedModes.includes(mode);
   };
 
   const handleLogout = () => {

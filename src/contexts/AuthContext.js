@@ -16,6 +16,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(localStorage.getItem('user'));
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [mode, setMode] = useState(localStorage.getItem('user_mode'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -45,6 +46,9 @@ export const AuthProvider = ({ children }) => {
       // if can't not login , will cause error
       const webResonse = await api.get('/weblogin/');
       console.log(webResonse.data);
+      let mode = webResonse.data.user_mode;
+      localStorage.setItem('user_mode', mode);
+      setMode(mode);
 
       return true;
     } catch (error) {

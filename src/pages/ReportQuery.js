@@ -279,9 +279,7 @@ const ReportQuery = () => {
 
   const handleViewPhoto = (photo) => {
     const customer = customers.find((c) => c.id === Number(photo.customerId));
-    const location = clientsWithLocations
-      .find((c) => c.id === Number(photo.customerId))
-      ?.locations?.find((l) => l.id === Number(photo.locationId));
+    const location = locations.find((c) => c.id === Number(photo.locationId));
 
     // 傳遞更多資訊給 PhotoDialog
     setSelectedPhoto({
@@ -467,9 +465,7 @@ const ReportQuery = () => {
           onClose={() => setOpenPhotoDialog(false)}
           photo={selectedPhoto}
           customer={customers.find((c) => c.id === Number(selectedPhoto?.customerId))}
-          location={clientsWithLocations
-            .find((c) => c.id === Number(selectedPhoto?.customerId))
-            ?.locations?.find((l) => l.id === Number(selectedPhoto?.locationId))}
+          location={locations.find((c) => c.id === Number(selectedPhoto?.locationId))}
         />
       </Box>
     </LocalizationProvider>

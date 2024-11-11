@@ -57,7 +57,7 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('下載失敗:', error);
-      setError('下載照片失敗');
+      //setError('下載照片失敗');
     }
   };
 

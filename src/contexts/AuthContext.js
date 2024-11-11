@@ -67,11 +67,13 @@ export const AuthProvider = ({ children }) => {
     // 清除 localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('user_mode');
 
     // 清除狀態
     setToken(null);
     setUser(null);
     setError(null);
+    setMode(null);
   }, []);
 
   // 檢查 token 是否有效
@@ -122,6 +124,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     token,
+    mode,
     loading,
     error,
     login,

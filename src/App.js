@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import CustomerManagement from './pages/CustomerManagement';
 import ModelManagement from './pages/ModelManagement';
 import ReportQuery from './pages/ReportQuery';
+import UserManagement from './pages/UserManagement'; // 新增這行
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
                     <Route exact path="/customers" component={CustomerManagement} />
                     <Route exact path="/modelmgrs" component={ModelManagement} />
                     <Route exact path="/reports" component={ReportQuery} />
+                    <Route exact path="/users" component={UserManagement} /> {/* 新增這行 */}
                     <Redirect exact from="/" to="/customers" />
                   </Switch>
                 </MainLayout>

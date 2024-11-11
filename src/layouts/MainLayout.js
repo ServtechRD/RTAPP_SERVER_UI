@@ -21,6 +21,8 @@ import {
   ExitToApp as LogoutIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
+  Group as GroupIcon, // 新增這行
+  Person as PersonIcon, // 新增這行
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
@@ -40,6 +42,9 @@ const MainLayout = ({ children }) => {
     { text: '客戶管理', icon: <PeopleIcon />, path: '/customers' },
     { text: '模型上傳', icon: <CloudUploadIcon />, path: '/modelmgrs' },
     { text: '報表查詢', icon: <AssessmentIcon />, path: '/reports' },
+    { text: '使用者管理', icon: <PersonIcon />, path: '/users' }, // 新增這行
+    // 如果還有群組管理，可以這樣加
+    // { text: '群組管理', icon: <GroupIcon />, path: '/groups' },
   ];
 
   const handleLogout = () => {

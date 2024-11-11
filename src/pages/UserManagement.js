@@ -55,7 +55,7 @@ const UserManagement = () => {
     try {
       setLoading(true);
       const response = await api.get('/users/all/');
-      setUsers(response.data);
+      setUsers(response.data.users);
     } catch (err) {
       setError('獲取使用者資料失敗');
       console.error(err);

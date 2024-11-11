@@ -65,7 +65,7 @@ const MainLayout = ({ children }) => {
       text: '使用者管理',
       icon: <PersonIcon />,
       path: '/users',
-      allowedModes: ['SUPERADMIN', 'VIEW'],
+      allowedModes: ['SUPERADMIN', 'WEB'],
     },
     /*
     { text: '客戶管理', icon: <PeopleIcon />, path: '/customers' },
@@ -78,7 +78,11 @@ const MainLayout = ({ children }) => {
 
   // 過濾選單項目
   const filteredMenuItems = menuItems.filter((item) => {
-    return item.allowedModes.includes(user?.mode);
+    console.log(item);
+
+    let result = item.allowedModes.includes(user?.mode);
+    console.log(result);
+    return result;
   });
 
   // 檢查當前路徑是否有權限訪問

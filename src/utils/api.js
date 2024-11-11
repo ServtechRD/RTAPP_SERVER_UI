@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { BASE_URL } from './config';
+//const BASE_URL = 'http://192.168.1.234:37200';
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.234:37200', // 替換成你的 API URL
+  baseURL: BASE_URL, // 替換成你的 API URL
 });
 
 // 添加請求攔截器
@@ -32,4 +34,5 @@ api.interceptors.response.use(
   }
 );
 
+export { BASE_URL };
 export default api;

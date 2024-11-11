@@ -43,15 +43,12 @@ const LoginPage = () => {
             src="/assets/images/Logo.png" // 把圖片放在 public 資料夾
             alt="Logo"
             style={{
-              width: '150px',
-              height: '150px',
+              width: '100px',
+              height: '100px',
             }}
           />
         </Box>
-        {/* 版本說明 */}
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          {APP_VERSION}
-        </Typography>
+
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             系統登入
@@ -85,6 +82,10 @@ const LoginPage = () => {
             </Button>
           </form>
         </Paper>
+        {/* 版本說明 */}
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          {APP_VERSION}
+        </Typography>
       </Box>
     </Container>
   );

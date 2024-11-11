@@ -28,7 +28,27 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/login" component={LoginPage} />
-          <Route path="/" component={PrivateApp} />
+          <Route
+            path="/"
+            render={({ location }) => {
+              const token = localStorage.getItem('token');
+              if (!token && location.pathname !== '/login') {
+                return <Redirect to="/login" />;
+              }
+
+              return (
+                <MainLayout>
+                  <Switch>
+                    <Route exact path="/customers" component={CustomerManagement} />
+                    <Route exact path="/modelmgrs" component={ModelManagement} />
+                    <Route exact path="/reports" component={ReportQuery} />
+                    <Route exact path="/users" component={UserManagement} />
+                    <Redirect exact from="/" to="/customers" />
+                  </Switch>
+                </MainLayout>
+              );
+            }}
+          />
         </Switch>
       </Router>
     </AuthProvider>

@@ -81,6 +81,13 @@ const MainLayout = ({ children }) => {
     return item.allowedModes.includes(user?.mode);
   });
 
+  // 檢查當前路徑是否有權限訪問
+  const canAccessCurrentPath = () => {
+    const currentMenuItem = menuItems.find((item) => item.path === location.pathname);
+    if (!currentMenuItem) return true; // 如果不在菜單中的路徑，允許訪問
+    return currentMenuItem.allowedModes.includes(user?.mode);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     history.push('/login');

@@ -11,46 +11,24 @@ import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 
+function PrivateApp() {
+  const { user } = useAuth();
+
+  // 如果沒有用戶信息，重定向到登入頁面
+  if (!user) {
+    return <Redirect to="/login" />;
+  }
+
+  return <MainLayout />;
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Switch>
           <Route exact path="/login" component={LoginPage} />
-          <Route
-            path="/"
-            render={() => (
-              <MainLayout>
-                <Switch>
-                  <PrivateRoute
-                    exact
-                    path="/customers"
-                    component={CustomerManagement}
-                    requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/modelmgrs"
-                    component={ModelManagement}
-                    requiredMode={['SUPERADMIN', 'WEB']}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/reports"
-                    component={ReportQuery}
-                    requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/users"
-                    component={UserManagement}
-                    requiredMode={['SUPERADMIN', 'WEB']}
-                  />
-                  <Redirect exact from="/" to="/customers" />
-                </Switch>
-              </MainLayout>
-            )}
-          />
+          <Route path="/" component={PrivateApp} />
         </Switch>
       </Router>
     </AuthProvider>

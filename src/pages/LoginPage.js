@@ -48,6 +48,10 @@ const LoginPage = () => {
             }}
           />
         </Box>
+        {/* 版本說明 */}
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          {APP_VERSION}
+        </Typography>
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             系統登入
@@ -81,11 +85,6 @@ const LoginPage = () => {
             </Button>
           </form>
         </Paper>
-
-        {/* 版本說明 */}
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          {APP_VERSION}
-        </Typography>
       </Box>
     </Container>
   );

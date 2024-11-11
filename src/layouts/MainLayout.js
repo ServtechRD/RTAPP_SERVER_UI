@@ -80,7 +80,7 @@ const MainLayout = ({ children }) => {
   const filteredMenuItems = menuItems.filter((item) => {
     console.log(item);
 
-    let result = item.allowedModes.includes(user?.mode);
+    let result = item.allowedModes.includes(mode);
     console.log(result);
     return result;
   });

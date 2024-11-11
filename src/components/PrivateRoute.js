@@ -10,9 +10,17 @@ const PrivateRoute = ({ component: Component, requiredMode, ...rest }) => {
     <Route
       {...rest}
       render={(props) => {
-        if (requiredMode && !requiredMode.includes(user?.mode)) {
+        // 如果沒有用戶信息，重定向到登入頁面
+        if (!user) {
+          return <Redirect to="/login" />;
+        }
+
+        // 如果有 requiredMode 且用戶不在允許的模式中，重定向到首頁
+        if (requiredMode && !requiredMode.includes(user.mode)) {
           return <Redirect to="/" />;
         }
+
+        // 否則渲染組件
         return <Component {...props} />;
       }}
     />

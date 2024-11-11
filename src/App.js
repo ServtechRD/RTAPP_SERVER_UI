@@ -19,45 +19,37 @@ function App() {
           <Route exact path="/login" component={LoginPage} />
           <Route
             path="/"
-            render={({ location }) => {
-              // 如果未登入，重定向到登入頁面
-              const token = localStorage.getItem('token');
-              if (!token && location.pathname !== '/login') {
-                return <Redirect to="/login" />;
-              }
-
-              return (
-                <MainLayout>
-                  <Switch>
-                    <PrivateRoute
-                      exact
-                      path="/customers"
-                      component={CustomerManagement}
-                      requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/modelmgrs"
-                      component={ModelManagement}
-                      requiredMode={['SUPERADMIN', 'WEB']}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/reports"
-                      component={ReportQuery}
-                      requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
-                    />
-                    <PrivateRoute
-                      exact
-                      path="/users"
-                      component={UserManagement}
-                      requiredMode={['SUPERADMIN', 'WEB']}
-                    />
-                    <Redirect exact from="/" to="/customers" />
-                  </Switch>
-                </MainLayout>
-              );
-            }}
+            render={() => (
+              <MainLayout>
+                <Switch>
+                  <PrivateRoute
+                    exact
+                    path="/customers"
+                    component={CustomerManagement}
+                    requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/modelmgrs"
+                    component={ModelManagement}
+                    requiredMode={['SUPERADMIN', 'WEB']}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/reports"
+                    component={ReportQuery}
+                    requiredMode={['SUPERADMIN', 'WEB', 'VIEW']}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/users"
+                    component={UserManagement}
+                    requiredMode={['SUPERADMIN', 'WEB']}
+                  />
+                  <Redirect exact from="/" to="/customers" />
+                </Switch>
+              </MainLayout>
+            )}
           />
         </Switch>
       </Router>

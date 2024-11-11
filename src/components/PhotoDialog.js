@@ -18,7 +18,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -27,8 +27,9 @@ import {
   ZoomOut as ZoomOutIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
+import api, { BASE_URL } from '../utils/api';
 
-const PhotoDialog = ({ open, onClose, photo }) => {
+const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
   const [zoomLevel, setZoomLevel] = React.useState(1);
   const [showOriginal, setShowOriginal] = React.useState(true);
 
@@ -36,29 +37,36 @@ const PhotoDialog = ({ open, onClose, photo }) => {
 
   const labels = photo.detectLabels?.split(',') || [];
 
-  const handleDownload = async (imageUrl, filename) => {
+  const handleDownload = async (photo, show_result) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      let api_url = `/photos/download/${photo.id}`;
+      if (show_result) {
+        api_url = api_url + '?result=true';
+      }
+
+      const response = await api.get(api_url, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', filename);
+      link.setAttribute('download', `photo_${photo.id}.jpg`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('下載失敗:', error);
+      setError('下載照片失敗');
     }
   };
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.2, 3));
+    setZoomLevel((prev) => Math.min(prev + 0.2, 3));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.2, 0.5));
+    setZoomLevel((prev) => Math.max(prev - 0.2, 0.5));
   };
 
   const toggleImage = () => {
@@ -74,8 +82,8 @@ const PhotoDialog = ({ open, onClose, photo }) => {
       PaperProps={{
         sx: {
           minHeight: '80vh',
-          maxHeight: '90vh'
-        }
+          maxHeight: '90vh',
+        },
       }}
     >
       <DialogTitle>
@@ -86,26 +94,26 @@ const PhotoDialog = ({ open, onClose, photo }) => {
           </IconButton>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent dividers>
         <Grid container spacing={2}>
           {/* 左側：圖片顯示區 */}
           <Grid item xs={12} md={8}>
-            <Paper 
-              elevation={3} 
-              sx={{ 
-                p: 2, 
+            <Paper
+              elevation={3}
+              sx={{
+                p: 2,
                 height: '100%',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
               }}
             >
-              <Box 
-                sx={{ 
-                  mb: 1, 
-                  display: 'flex', 
+              <Box
+                sx={{
+                  mb: 1,
+                  display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
                 <Box>
@@ -117,42 +125,37 @@ const PhotoDialog = ({ open, onClose, photo }) => {
                   </IconButton>
                 </Box>
                 {photo.file_result_path && (
-                  <Button 
-                    size="small"
-                    onClick={toggleImage}
-                  >
+                  <Button size="small" onClick={toggleImage}>
                     {showOriginal ? '顯示結果圖' : '顯示原圖'}
                   </Button>
                 )}
-                <IconButton 
-                  onClick={() => handleDownload(
-                    showOriginal ? photo.file_path : photo.file_result_path,
-                    `photo_${photo.id}${showOriginal ? '' : '_result'}.jpg`
-                  )}
-                  size="small"
-                >
+                <IconButton onClick={() => handleDownload(photo, showOriginal)} size="small">
                   <DownloadIcon />
                 </IconButton>
               </Box>
-              
-              <Box 
-                sx={{ 
+
+              <Box
+                sx={{
                   flex: 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
                 }}
               >
                 <img
-                  src={showOriginal ? photo.file_path : photo.file_result_path}
+                  src={
+                    showOriginal
+                      ? `${BASE_URL}/photos/show/${photo.id}`
+                      : `${BASE_URL}/photos/show/${photo.id}?result=true`
+                  }
                   alt="Photo"
                   style={{
                     maxWidth: '100%',
                     maxHeight: '600px',
                     objectFit: 'contain',
                     transform: `scale(${zoomLevel})`,
-                    transition: 'transform 0.2s'
+                    transition: 'transform 0.2s',
                   }}
                 />
               </Box>
@@ -165,13 +168,13 @@ const PhotoDialog = ({ open, onClose, photo }) => {
               <Typography variant="h6" gutterBottom>
                 基本信息
               </Typography>
-              
+
               <TableContainer>
                 <Table size="small">
                   <TableBody>
                     <TableRow>
                       <TableCell component="th" scope="row" sx={{ width: '40%' }}>
-                        拍攝時間
+                        日期
                       </TableCell>
                       <TableCell>
                         {format(new Date(photo.saveTime), 'yyyy-MM-dd HH:mm:ss')}
@@ -185,21 +188,15 @@ const PhotoDialog = ({ open, onClose, photo }) => {
                     </TableRow>
                     <TableRow>
                       <TableCell component="th" scope="row">
-                        上傳者
+                        客戶
                       </TableCell>
-                      <TableCell>{photo.userName}</TableCell>
+                      <TableCell> {customer?.name || photo.customerName || '未知'}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell component="th" scope="row">
-                        客戶ID
+                        地點
                       </TableCell>
-                      <TableCell>{photo.customerId}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" scope="row">
-                        地點ID
-                      </TableCell>
-                      <TableCell>{photo.locationId}</TableCell>
+                      <TableCell> {location?.address || photo.locationName || '未知'} </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -208,23 +205,27 @@ const PhotoDialog = ({ open, onClose, photo }) => {
               <Divider sx={{ my: 2 }} />
 
               <Typography variant="h6" gutterBottom>
-                檢測標籤
+                辨識物件
               </Typography>
-              
+
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {labels.map((label, index) => (
-                  <Tooltip 
-                    key={index} 
-                    title={`標籤 ${index + 1}/${labels.length}`}
-                  >
-                    <Chip
-                      label={label.trim()}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-                  </Tooltip>
-                ))}
+                {labels
+                  .filter((label) => label && label.trim()) // 過濾掉空值
+                  .map((label, index) => {
+                    const parts = label.trim().split('@');
+                    const displayLabel = parts.length > 1 ? parts[1] : parts[0];
+
+                    // 只有當有有效的標籤時才顯示
+                    return displayLabel ? (
+                      <Chip
+                        key={index}
+                        label={displayLabel}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    ) : null;
+                  })}
               </Box>
             </Paper>
           </Grid>

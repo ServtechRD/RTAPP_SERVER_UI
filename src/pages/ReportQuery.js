@@ -119,7 +119,8 @@ const ReportQuery = () => {
       calculateStats(results);
     } catch (error) {
       console.error('查詢失敗:', error);
-      setError(error.response?.data?.detail || '查詢資料時發生錯誤');
+      //setError(error.response?.data?.detail || '查詢資料時發生錯誤');
+      setError('無資料');
       setQueryResults([]);
     } finally {
       setLoading(false);
@@ -277,7 +278,17 @@ const ReportQuery = () => {
   ];
 
   const handleViewPhoto = (photo) => {
-    setSelectedPhoto(photo);
+    const customer = customers.find((c) => c.id === Number(photo.customerId));
+    const location = clientsWithLocations
+      .find((c) => c.id === Number(photo.customerId))
+      ?.locations?.find((l) => l.id === Number(photo.locationId));
+
+    // 傳遞更多資訊給 PhotoDialog
+    setSelectedPhoto({
+      ...photo,
+      customerName: customer?.name || '',
+      locationName: location?.address || '',
+    });
     setOpenPhotoDialog(true);
   };
 
@@ -455,6 +466,10 @@ const ReportQuery = () => {
           open={openPhotoDialog}
           onClose={() => setOpenPhotoDialog(false)}
           photo={selectedPhoto}
+          customer={customers.find((c) => c.id === Number(selectedPhoto?.customerId))}
+          location={clientsWithLocations
+            .find((c) => c.id === Number(selectedPhoto?.customerId))
+            ?.locations?.find((l) => l.id === Number(selectedPhoto?.locationId))}
         />
       </Box>
     </LocalizationProvider>

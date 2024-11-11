@@ -89,7 +89,8 @@ const UserManagement = () => {
       valueGetter: (params) => {
         const modeMap = {
           SUPERADMIN: '超級管理員',
-          WEB: '平台',
+          WEB: '平台管理',
+          VIEW: '平台查詢',
           TEST: '測試用',
           MOBILE: '手機用',
         };
@@ -262,7 +263,9 @@ const UserManagement = () => {
                     {availableTypes.map((type) => (
                       <MenuItem key={type} value={type}>
                         {type === 'WEB'
-                          ? '平台'
+                          ? '平台管理'
+                          : type == 'VIEW'
+                          ? '平台查詢'
                           : type === 'TEST'
                           ? '測試用'
                           : type === 'MOBILE'

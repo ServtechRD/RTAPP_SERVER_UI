@@ -8,6 +8,7 @@ import ModelManagement from './pages/ModelManagement';
 import ReportQuery from './pages/ReportQuery';
 import UserManagement from './pages/UserManagement'; // 新增這行
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
   return (
@@ -28,9 +29,33 @@ function App() {
                 <MainLayout>
                   <Switch>
                     <Route exact path="/customers" component={CustomerManagement} />
-                    <Route exact path="/modelmgrs" component={ModelManagement} />
+                    <Route
+                      exact
+                      path="/modelmgrs"
+                      render={() => {
+                        const { user } = useAuth();
+                        // 只有 SUPER ADMIN 可以訪問使用者管理
+                        return user?.mode === 'SUPERADMIN' || user?.mode === 'WEB' ? (
+                          <ModelManagement />
+                        ) : (
+                          <Redirect to="/" />
+                        );
+                      }}
+                    />
                     <Route exact path="/reports" component={ReportQuery} />
-                    <Route exact path="/users" component={UserManagement} /> {/* 新增這行 */}
+                    <Route
+                      exact
+                      path="/users"
+                      render={() => {
+                        const { user } = useAuth();
+                        // 只有 SUPER ADMIN 可以訪問使用者管理
+                        return user?.mode === 'SUPERADMIN' || user?.mode === 'WEB' ? (
+                          <UserManagement />
+                        ) : (
+                          <Redirect to="/" />
+                        );
+                      }}
+                    />
                     <Redirect exact from="/" to="/customers" />
                   </Switch>
                 </MainLayout>

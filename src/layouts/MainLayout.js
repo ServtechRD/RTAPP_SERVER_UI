@@ -30,6 +30,8 @@ const miniDrawerWidth = 65; // 收起時的寬度
 
 const MainLayout = ({ children }) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
+  // 從 AuthContext 獲取當前用戶信息
+  const { user } = useAuth();
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -39,13 +41,43 @@ const MainLayout = ({ children }) => {
   const location = useLocation();
 
   const menuItems = [
+    {
+      text: '客戶管理',
+      icon: <PeopleIcon />,
+      path: '/customers',
+      allowedModes: ['SUPERADMIN', 'WEB', 'VIEW'],
+    },
+    {
+      text: '模型管理',
+      icon: <CloudUploadIcon />,
+      path: '/modelmgrs',
+      allowedModes: ['SUPERADMIN', 'WEB'],
+    },
+    {
+      text: '報表查詢',
+      icon: <AssessmentIcon />,
+      path: '/reports',
+      allowedModes: ['SUPERADMIN', 'WEB', 'VIEW'],
+    },
+    {
+      text: '使用者管理',
+      icon: <PersonIcon />,
+      path: '/users',
+      allowedModes: ['SUPERADMIN', 'VIEW'],
+    },
+    /*
     { text: '客戶管理', icon: <PeopleIcon />, path: '/customers' },
     { text: '模型上傳', icon: <CloudUploadIcon />, path: '/modelmgrs' },
     { text: '報表查詢', icon: <AssessmentIcon />, path: '/reports' },
-    { text: '使用者管理', icon: <PersonIcon />, path: '/users' }, // 新增這行
+    { text: '使用者管理', icon: <PersonIcon />, path: '/users' }, // 新增這行*/
     // 如果還有群組管理，可以這樣加
     // { text: '群組管理', icon: <GroupIcon />, path: '/groups' },
   ];
+
+  // 過濾選單項目
+  const filteredMenuItems = menuItems.filter((item) => {
+    return item.allowedModes.includes(user?.mode);
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -93,7 +125,7 @@ const MainLayout = ({ children }) => {
           open={drawerOpen}
         >
           <List>
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <ListItem
                 button
                 key={item.text}

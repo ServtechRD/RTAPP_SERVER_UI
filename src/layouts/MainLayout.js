@@ -25,6 +25,8 @@ import {
   Person as PersonIcon, // 新增這行
 } from '@mui/icons-material';
 
+import { useAuth } from '../contexts/AuthContext'; // 確保這行已經加入
+
 const drawerWidth = 240;
 const miniDrawerWidth = 65; // 收起時的寬度
 

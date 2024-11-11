@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '../contexts/AuthContext'; // 確保這行已經加入
+import { APP_VERSION } from '../config';
 
 const drawerWidth = 240;
 const miniDrawerWidth = 65; // 收起時的寬度
@@ -111,9 +112,32 @@ const MainLayout = ({ children }) => {
           >
             {drawerOpen ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            管理系統
+          {/* Logo 和標題 */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexGrow: 1,
+            }}
+          >
+            <img
+              src="/assets/images/Logo.png"
+              alt="Logo"
+              style={{
+                width: '40px',
+                height: '40px',
+                marginRight: '10px',
+              }}
+            />
+            <Typography variant="h6" component="div">
+              管理系統
+            </Typography>
+          </Box>
+          {/* 版本號 */}
+          <Typography variant="body2" color="inherit" sx={{ mr: 2 }}>
+            {APP_VERSION}
           </Typography>
+
           <IconButton color="inherit" onClick={handleLogout}>
             <LogoutIcon />
           </IconButton>

@@ -1,16 +1,9 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-} from '@mui/material';
+import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { APP_VERSION } from '../config';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -44,11 +37,26 @@ const LoginPage = () => {
           alignItems: 'center',
         }}
       >
+        {/* 添加 Logo */}
+        <Box sx={{ mb: 3 }}>
+          <img
+            src="/assets/images/Logo.png" // 把圖片放在 public 資料夾
+            alt="Logo"
+            style={{
+              width: '150px',
+              height: '150px',
+            }}
+          />
+        </Box>
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             系統登入
           </Typography>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <form onSubmit={handleSubmit}>
             <TextField
               margin="normal"
@@ -68,16 +76,16 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               登入
             </Button>
           </form>
         </Paper>
+
+        {/* 版本說明 */}
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          {APP_VERSION}
+        </Typography>
       </Box>
     </Container>
   );

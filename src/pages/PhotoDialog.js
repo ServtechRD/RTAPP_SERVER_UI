@@ -82,10 +82,10 @@ const PhotoDialog = ({ open, onClose, photo }) => {
               {photo.file_result_path && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="h6" gutterBottom>
-                    Detection Result
+                    識別結果照片
                   </Typography>
                   <img
-                    src={photo.file_result_path}
+                    src={`${BASE_URL}/photos/show/${photo.id}?result=true`}
                     alt="Detection Result"
                     style={{
                       width: '100%',

@@ -26,6 +26,7 @@ import {
   Clear as ClearIcon,
   Image as ImageIcon,
   Download as DownloadIcon,
+  CloudDownload as CloudDownloadIcon,
 } from '@mui/icons-material';
 import api from '../utils/api';
 import PhotoDialog from '../components/PhotoDialog';
@@ -107,6 +108,49 @@ const ReportQuery = () => {
     } catch (error) {
       console.error('獲取地點資料失敗:', error);
       setError('獲取地點資料失敗');
+    }
+  };
+
+  // 添加批次下載函數
+  const handleBatchDownload = async () => {
+    if (queryResults.length === 0) {
+      setError('無可下載的照片');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // 使用當前查詢條件下載
+      const params = {
+        start_time: format(startDate, 'yyyy-MM-dd') + ' 00:00:00',
+        end_time: format(endDate, 'yyyy-MM-dd') + ' 23:59:59',
+        serialNumber: selectedSerial || undefined,
+        ownerName: selectedOwner || undefined,
+      };
+
+      const response = await api.get('/photos/download_zip/', {
+        params,
+        responseType: 'blob',
+      });
+
+      // 創建下載連結
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // 使用當前日期作為檔名
+      const currentDate = format(new Date(), 'yyyyMMdd');
+      link.setAttribute('download', `photos_${currentDate}.zip`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('批次下載失敗:', error);
+      setError('批次下載失敗');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -433,6 +477,18 @@ const ReportQuery = () => {
             </Card>
           </Grid>
         </Grid>
+
+        {/* 在 DataGrid 之前添加下載按鈕 */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<CloudDownloadIcon />}
+            onClick={handleBatchDownload}
+            disabled={loading || queryResults.length === 0}
+          >
+            下載所有照片
+          </Button>
+        </Box>
 
         <DataGrid
           rows={queryResults}

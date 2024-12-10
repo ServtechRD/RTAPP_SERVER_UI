@@ -38,6 +38,10 @@ const ReportQuery = () => {
     date.setDate(date.getDate() - 7); // 7天前
     return date;
   });
+
+  const [selectedSerial, setSelectedSerial] = useState(''); // 改為作番號碼
+  const [serials, setSerials] = useState([]); // 改為作番號碼列表
+
   const [endDate, setEndDate] = useState(new Date()); // 今天
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [selectedOwner, setSelectedOwner] = useState('');
@@ -56,10 +60,22 @@ const ReportQuery = () => {
   });
 
   useEffect(() => {
-    fetchCustomers();
+    fetchSerials(); // 改為獲取作番號碼
+    //fetchCustomers();
     fetchOwners();
-    fetchLocations();
+    //fetchLocations();
   }, []);
+
+  // 新增獲取作番號碼的函數
+  const fetchSerials = async () => {
+    try {
+      const response = await api.get('/unique_serials/');
+      setSerials(response.data);
+    } catch (error) {
+      console.error('獲取作番號碼失敗:', error);
+      setError('獲取作番號碼失敗');
+    }
+  };
 
   const fetchCustomers = async () => {
     try {
@@ -107,7 +123,7 @@ const ReportQuery = () => {
       const params = {
         start_time: format(startDate, 'yyyy-MM-dd') + ' 00:00:00',
         end_time: format(endDate, 'yyyy-MM-dd') + ' 23:59:59',
-        customerId: selectedCustomer || undefined,
+        serialNumber: selectedSerial || undefined,
         ownerName: selectedOwner || undefined,
       };
 
@@ -129,7 +145,8 @@ const ReportQuery = () => {
 
   const calculateStats = (data) => {
     const totalPhotos = data.length;
-    const uniqueCustomers = new Set(data.map((item) => item.customerId)).size;
+    //const uniqueCustomers = new Set(data.map((item) => item.customerId)).size;
+    const uniqueSerials = new Set(data.map((item) => item.serialNumber)).size;
     const totalLabels = data.reduce((acc, item) => {
       return acc + (item.detectLabels?.split(',').length || 0);
     }, 0);
@@ -137,7 +154,7 @@ const ReportQuery = () => {
 
     setStats({
       totalPhotos,
-      totalCustomers: uniqueCustomers,
+      totalCustomers: uniqueSerials, //uniqueCustomers,
       averageLabelsPerPhoto: averageLabels,
     });
   };
@@ -145,6 +162,7 @@ const ReportQuery = () => {
   const handleClear = () => {
     setStartDate(null);
     setEndDate(null);
+    setSelectedSerial(''); // 改為清除作番號碼
     setSelectedCustomer('');
     setSelectedOwner('');
     setQueryResults([]);
@@ -339,16 +357,16 @@ const ReportQuery = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth>
-                <InputLabel>客戶</InputLabel>
+                <InputLabel>作番號碼</InputLabel>
                 <Select
-                  value={selectedCustomer}
-                  onChange={(e) => setSelectedCustomer(e.target.value)}
-                  label="客戶"
+                  value={selectedSerial}
+                  onChange={(e) => setSelectedSerial(e.target.value)}
+                  label="作番號碼"
                 >
                   <MenuItem value="">全部</MenuItem>
-                  {customers.map((customer) => (
-                    <MenuItem key={customer.id} value={customer.id}>
-                      {customer.name}
+                  {serials.map((serial) => (
+                    <MenuItem key={serial} value={serial}>
+                      {serial}
                     </MenuItem>
                   ))}
                 </Select>
@@ -408,7 +426,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  客戶總數
+                  作番號碼總數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
               </CardContent>

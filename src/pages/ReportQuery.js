@@ -158,34 +158,37 @@ const ReportQuery = () => {
 
   const columns = [
     {
+      field: 'id',
+      headerName: '項次',
+      width: 70,
+      type: 'number',
+    },
+    {
       field: 'saveTime',
       headerName: '時間',
       width: 160,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('zh-TW'),
+      valueFormatter: (params) => {
+        const utcDate = new Date(params.value);
+        return utcDate.toLocaleString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
+      },
+    },
+    {
+      field: 'serialNumber',
+      headerName: '作番號碼',
+      width: 130,
     },
     {
       field: 'ownerName',
       headerName: '負責人員',
       width: 100,
-    },
-    {
-      field: 'customerId',
-      headerName: '客戶名稱',
-      width: 130,
-      valueGetter: (params) => {
-        const customer = customers.find((c) => c.id === params.value);
-        return customer ? customer.name : params.value;
-      },
-    },
-    {
-      field: 'locationId',
-      headerName: '拍照地點',
-      width: 130,
-      valueGetter: (params) => {
-        const location = locations.find((c) => c.id === params.value);
-        console.log(params);
-        return location ? location.address : params.value;
-      },
     },
     {
       field: 'taskId',

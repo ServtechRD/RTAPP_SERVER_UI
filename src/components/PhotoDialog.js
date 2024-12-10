@@ -188,15 +188,9 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
                     </TableRow>
                     <TableRow>
                       <TableCell component="th" scope="row">
-                        客戶
+                        作番號碼
                       </TableCell>
-                      <TableCell> {customer?.name || photo.customerName || '未知'}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" scope="row">
-                        地點
-                      </TableCell>
-                      <TableCell> {location?.address || photo.locationName || '未知'} </TableCell>
+                      <TableCell> {photo.serialNumber || '未知'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

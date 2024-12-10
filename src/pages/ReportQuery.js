@@ -255,7 +255,7 @@ const ReportQuery = () => {
     {
       field: 'taskId',
       headerName: '作業內容',
-      width: 100,
+      width: 200,
       valueGetter: (params) => {
         const taskName =
           params.value == 0 ? '現場作業 (勾掛安全帶)' : '現場作業 (不需要勾掛安全帶)';
@@ -278,7 +278,7 @@ const ReportQuery = () => {
     {
       field: 'detectLabels',
       headerName: '辨識物件',
-      width: 130,
+      width: 160,
       valueGetter: (params) => {
         // 如果沒有標籤資料，返回空字串
         if (!params.value) return '';
@@ -323,7 +323,7 @@ const ReportQuery = () => {
     {
       field: 'actions',
       headerName: '辨識結果及照片',
-      width: 130,
+      width: 160,
       sortable: false,
       renderCell: (params) => (
         <Box>

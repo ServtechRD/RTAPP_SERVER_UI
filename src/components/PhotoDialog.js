@@ -35,7 +35,7 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
 
   if (!photo) return null;
 
-  const labels = photo.detectLabels?.split(',') || [];
+  const labels = photo.detectLabels?.split('|') || [];
 
   const handleDownload = async (photo, show_result) => {
     try {

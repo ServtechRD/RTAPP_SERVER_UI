@@ -259,7 +259,11 @@ const ReportQuery = () => {
       width: 200,
       valueGetter: (params) => {
         const taskName =
-          params.value == 0 ? '現場作業 (勾掛安全帶)' : '現場作業 (不需要勾掛安全帶)';
+          params.value == 0
+            ? '現場作業 (勾掛安全帶)'
+            : params.value == 1
+            ? '現場作業 (不需要勾掛安全帶)'
+            : '現場作業(電扶梯專用)';
         return taskName;
       },
       renderCell: (params) => (

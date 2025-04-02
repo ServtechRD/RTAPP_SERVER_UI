@@ -182,15 +182,9 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
                     </TableRow>
                     <TableRow>
                       <TableCell component="th" scope="row">
-                        負責人
+                        人員
                       </TableCell>
                       <TableCell>{photo.ownerName}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" scope="row">
-                        作番號碼
-                      </TableCell>
-                      <TableCell> {photo.serialNumber || '未知'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

@@ -48,13 +48,13 @@ const MainLayout = ({ children }) => {
       text: '客戶管理',
       icon: <PeopleIcon />,
       path: '/customers',
-      allowedModes: ['SUPERADMIN', 'WEB', 'VIEW'],
+      allowedModes: ['SUPERADMIN'],
     },
     {
       text: '模型管理',
       icon: <CloudUploadIcon />,
       path: '/modelmgrs',
-      allowedModes: ['SUPERADMIN', 'WEB'],
+      allowedModes: ['SUPERADMIN'],
     },
     {
       text: '報表查詢',

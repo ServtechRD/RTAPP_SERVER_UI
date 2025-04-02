@@ -61,7 +61,7 @@ const ReportQuery = () => {
   });
 
   useEffect(() => {
-    fetchSerials(); // 改為獲取作番號碼
+    // fetchSerials(); // 改為獲取作番號碼 - 隐藏作番号获取
     //fetchCustomers();
     fetchOwners();
     //fetchLocations();
@@ -95,8 +95,8 @@ const ReportQuery = () => {
       // 因為回傳的是字串陣列，直接使用即可
       setOwners(response.data);
     } catch (error) {
-      console.error('獲取負責人資料失敗:', error);
-      setError('獲取負責人資料失敗');
+      console.error('獲取人員資料失敗:', error);
+      setError('獲取人員資料失敗');
     }
   };
 
@@ -167,7 +167,7 @@ const ReportQuery = () => {
       const params = {
         start_time: format(startDate, 'yyyy-MM-dd') + ' 00:00:00',
         end_time: format(endDate, 'yyyy-MM-dd') + ' 23:59:59',
-        serialNumber: selectedSerial || undefined,
+        // serialNumber: selectedSerial || undefined, // 隐藏作番号参数
         ownerName: selectedOwner || undefined,
       };
 
@@ -206,7 +206,7 @@ const ReportQuery = () => {
   const handleClear = () => {
     setStartDate(null);
     setEndDate(null);
-    setSelectedSerial(''); // 改為清除作番號碼
+    // setSelectedSerial(''); // 改為清除作番號碼 - 隐藏作番号清除
     setSelectedCustomer('');
     setSelectedOwner('');
     setQueryResults([]);
@@ -242,14 +242,15 @@ const ReportQuery = () => {
         });
       },
     },
-    {
-      field: 'serialNumber',
-      headerName: '作番號碼',
-      width: 130,
-    },
+    // 隐藏作番号列
+    // {
+    //   field: 'serialNumber',
+    //   headerName: '作番號碼',
+    //   width: 130,
+    // },
     {
       field: 'ownerName',
-      headerName: '負責人員',
+      headerName: '人員',
       width: 100,
     },
     {
@@ -399,7 +400,8 @@ const ReportQuery = () => {
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            {/* 隐藏作番号选择框 */}
+            {/* <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth>
                 <InputLabel>作番號碼</InputLabel>
                 <Select
@@ -415,14 +417,14 @@ const ReportQuery = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth>
-                <InputLabel>負責人</InputLabel>
+                <InputLabel>人員</InputLabel>
                 <Select
                   value={selectedOwner}
                   onChange={(e) => setSelectedOwner(e.target.value)}
-                  label="負責人"
+                  label="人員"
                 >
                   <MenuItem value="">全部</MenuItem>
                   {owners.map((ownerName) => (
@@ -470,7 +472,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  作番號碼總數
+                  人員總數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
               </CardContent>

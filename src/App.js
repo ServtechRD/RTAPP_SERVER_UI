@@ -43,7 +43,7 @@ function App() {
                     <Route exact path="/modelmgrs" component={ModelManagement} />
                     <Route exact path="/reports" component={ReportQuery} />
                     <Route exact path="/users" component={UserManagement} />
-                    <Redirect exact from="/" to="/customers" />
+                    <Redirect exact from="/" to="/reports" />
                   </Switch>
                 </MainLayout>
               );

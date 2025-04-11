@@ -18,7 +18,7 @@ const LoginPage = () => {
     try {
       const success = await login(username, password);
       if (success) {
-        history.push('/customers');
+        history.push('/reports');
       } else {
         setError('登入失敗，請檢查用戶名和密碼');
       }

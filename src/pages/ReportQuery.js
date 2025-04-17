@@ -362,7 +362,7 @@ const ReportQuery = () => {
 
   const handleDownload = async (photo) => {
     try {
-      const response = await api.get(`/photos/download_result/${photo.id}`, {
+      const response = await api.get(`/photos/download/${photo.id}?result=true`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

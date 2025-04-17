@@ -91,7 +91,7 @@ const ReportQuery = () => {
 
   const fetchOwners = async () => {
     try {
-      const response = await api.get('/unique_owners');
+      const response = await api.get('/unique_owners/');
       // 因為回傳的是字串陣列，直接使用即可
       setOwners(response.data);
     } catch (error) {

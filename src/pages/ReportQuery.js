@@ -362,7 +362,7 @@ const ReportQuery = () => {
 
   const handleDownload = async (photo) => {
     try {
-      const response = await api.get(`/photos/download/${photo.id}`, {
+      const response = await api.get(`/photos/download_result/${photo.id}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -448,7 +448,7 @@ const ReportQuery = () => {
               >
                 查詢
               </Button>
-              <Button variant="outlined" startIcon={<ClearIcon />} onClick={handleClear}>
+              <Button variant="outlined" startIcon={<ClearIcon />} onClick={handleClear} fullWidth>
                 清除
               </Button>
             </Grid>
@@ -503,6 +503,7 @@ const ReportQuery = () => {
           rowsPerPageOptions={[10, 25, 50]}
           checkboxSelection
           disableSelectionOnClick
+          disableRowSelectionOnClick
           loading={loading}
           autoHeight
           getRowHeight={() => 'auto'} // 自動行高

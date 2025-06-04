@@ -496,7 +496,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  不重複人員數
+                  人員數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
               </CardContent>

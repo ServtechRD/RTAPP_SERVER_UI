@@ -81,7 +81,7 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
   let dateText = photo.saveTime;
 
   if (t1.getDate() === t2.getDate() && hourdiff < 8) {
-    dateText = t1.replace(' ', 'T') + 'Z';
+    dateText = dateText.replace(' ', 'T') + 'Z';
   }
 
   return (

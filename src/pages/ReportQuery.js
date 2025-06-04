@@ -191,7 +191,8 @@ const ReportQuery = () => {
   const calculateStats = (data) => {
     const totalPhotos = data.length;
     //const uniqueCustomers = new Set(data.map((item) => item.customerId)).size;
-    const uniqueSerials = new Set(data.map((item) => item.serialNumber)).size;
+    //const uniqueSerials = new Set(data.map((item) => item.serialNumber)).size;
+    const uniqueOwners = new Set(data.map((item) => item.ownerName)).size;
     const totalLabels = data.reduce((acc, item) => {
       return acc + (item.detectLabels?.split(',').length || 0);
     }, 0);
@@ -199,7 +200,7 @@ const ReportQuery = () => {
 
     setStats({
       totalPhotos,
-      totalCustomers: uniqueSerials, //uniqueCustomers,
+      totalCustomers: uniqueOwners, // 改为使用 uniqueOwners
       averageLabelsPerPhoto: averageLabels,
     });
   };
@@ -495,7 +496,7 @@ const ReportQuery = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  人員總數
+                  不重複人員數
                 </Typography>
                 <Typography variant="h4">{stats.totalCustomers}</Typography>
               </CardContent>

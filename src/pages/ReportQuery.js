@@ -231,7 +231,7 @@ const ReportQuery = () => {
       width: 160,
       valueFormatter: (params) => {
         const saveTime = new Date(params.value);
-        const updateTime = new Date(params.row.updateTime);
+        const updateTime = new Date(params.row.updated_at);
 
         let dateText = params.value;
 

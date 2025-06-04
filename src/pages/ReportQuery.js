@@ -230,7 +230,7 @@ const ReportQuery = () => {
       headerName: '時間',
       width: 160,
       valueGetter: (params) => {
-        `${params.row.saveTime}|${params.row.updated_at}`;
+        return `${params.row.saveTime}|${params.row.updated_at}`;
       },
       valueFormatter: (params) => {
         const [time1, time2] = params.value.split('|');

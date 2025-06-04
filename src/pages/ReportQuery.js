@@ -16,6 +16,7 @@ import {
   Tooltip,
   Card,
   CardContent,
+  Autocomplete,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -441,21 +442,21 @@ const ReportQuery = () => {
               </FormControl>
             </Grid> */}
             <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>人員</InputLabel>
-                <Select
-                  value={selectedOwner}
-                  onChange={(e) => setSelectedOwner(e.target.value)}
-                  label="人員"
-                >
-                  <MenuItem value="">全部</MenuItem>
-                  {owners.map((ownerName) => (
-                    <MenuItem key={ownerName} value={ownerName}>
-                      {ownerName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                value={selectedOwner}
+                onChange={(event, newValue) => {
+                  setSelectedOwner(newValue);
+                }}
+                options={owners}
+                renderInput={(params) => <TextField {...params} label="人員" fullWidth />}
+                freeSolo
+                autoComplete
+                includeInputInList
+                filterOptions={(options, state) => {
+                  const inputValue = state.inputValue.toLowerCase().trim();
+                  return options.filter((option) => option.toLowerCase().includes(inputValue));
+                }}
+              />
             </Grid>
             <Grid item xs={12} md={2} sx={{ display: 'flex', gap: 1 }}>
               <Button

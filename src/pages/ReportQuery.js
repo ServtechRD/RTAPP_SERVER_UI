@@ -230,7 +230,20 @@ const ReportQuery = () => {
       headerName: '時間',
       width: 160,
       valueFormatter: (params) => {
-        const utcDate = new Date(params.value);
+        const saveTime = new Date(params.value);
+        const updateTime = new Date(params.row.updateTime);
+
+        let dateText = params.value;
+
+        const hourdiff = Math.abs(saveTime.getHours() - updateTime.getHours());
+
+        // 如果傳送和儲存日期和小時差小於8表示傳入的是utc , 要用ISO Date的字串格式yyyy-mm-ddThh:mm:ssZ
+        if (saveTime.getDate() === updateTime.getDate() && hourdiff < 8) {
+          dateText = params.value.replace(' ', 'T') + 'Z';
+        }
+        // 如果不是IOS Date , 預設會用local time 來處理
+        // 因此檢查savetime 和 updatetime , updatetime 會是utc
+        const utcDate = new Date(dateText);
         return utcDate.toLocaleString('zh-TW', {
           year: 'numeric',
           month: '2-digit',

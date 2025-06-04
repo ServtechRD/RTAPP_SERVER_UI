@@ -73,6 +73,17 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
     setShowOriginal(!showOriginal);
   };
 
+  const t1 = new Date(photo.saveTime);
+  const t2 = new Date(photo.updated_at);
+
+  const hourdiff = Math.abs(t1.getHours() - t2.getHours());
+
+  let dateText = photo.saveTime;
+
+  if (t1.getDate() === t2.getDate() && hourdiff < 8) {
+    dateText = t1.replace(' ', 'T') + 'Z';
+  }
+
   return (
     <Dialog
       open={open}
@@ -174,11 +185,9 @@ const PhotoDialog = ({ open, onClose, photo, customer, location }) => {
                   <TableBody>
                     <TableRow>
                       <TableCell component="th" scope="row" sx={{ width: '40%' }}>
-                        日期
+                        時間
                       </TableCell>
-                      <TableCell>
-                        {format(new Date(photo.saveTime), 'yyyy-MM-dd HH:mm:ss')}
-                      </TableCell>
+                      <TableCell>{format(new Date(dateText), 'yyyy-MM-dd HH:mm:ss')}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell component="th" scope="row">

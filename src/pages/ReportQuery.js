@@ -229,17 +229,22 @@ const ReportQuery = () => {
       field: 'saveTime',
       headerName: '時間',
       width: 160,
+      valueGetter: (params) => {
+        `${params.row.saveTime}|${params.row.updated_at}`;
+      },
       valueFormatter: (params) => {
-        const saveTime = new Date(params.value);
-        const updateTime = new Date(params.row.updated_at);
+        const [time1, time2] = params.value.split('|');
 
-        let dateText = params.value;
+        const saveTime = new Date(time1);
+        const updateTime = new Date(time2);
+
+        let dateText = time1;
 
         const hourdiff = Math.abs(saveTime.getHours() - updateTime.getHours());
 
         // 如果傳送和儲存日期和小時差小於8表示傳入的是utc , 要用ISO Date的字串格式yyyy-mm-ddThh:mm:ssZ
         if (saveTime.getDate() === updateTime.getDate() && hourdiff < 8) {
-          dateText = params.value.replace(' ', 'T') + 'Z';
+          dateText = time1.replace(' ', 'T') + 'Z';
         }
         // 如果不是IOS Date , 預設會用local time 來處理
         // 因此檢查savetime 和 updatetime , updatetime 會是utc

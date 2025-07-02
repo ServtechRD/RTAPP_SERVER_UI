@@ -229,7 +229,7 @@ const ReportQuery = () => {
     },
     {
       field: 'saveTime',
-      headerName: '時間',
+      headerName: '拍攝時間',
       width: 160,
       valueGetter: (params) => {
         return `${params.row.saveTime}|${params.row.updated_at}`;
@@ -252,6 +252,24 @@ const ReportQuery = () => {
         // 因此檢查savetime 和 updatetime , updatetime 會是utc
         const utcDate = new Date(dateText);
         return utcDate.toLocaleString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
+      },
+    },
+    {
+      field: 'updated_at',
+      headerName: '上傳時間',
+      width: 160,
+      valueFormatter: (params) => {
+        const fixedTime = params.value + 'Z';
+        const updateTime = new Date(fixedTime);
+        return updateTime.toLocaleString('zh-TW', {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',
